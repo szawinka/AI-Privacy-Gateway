@@ -1,0 +1,40 @@
+name: Windows verification
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+          architecture: x64
+      - name: Clean installation and tests
+        shell: cmd
+        run: call Start-Windows.cmd --check
+      - name: Local web startup
+        shell: pwsh
+        run: |
+          $server = Start-Process -FilePath '.venv\Scripts\python.exe' -ArgumentList '-B','-m','gateway.web_demo','--guided-demo' -PassThru
+          try {
+            for ($i = 0; $i -lt 20; $i++) {
+              try {
+                $page = Invoke-WebRequest -Uri 'http://127.0.0.1:8765/' -TimeoutSec 2
+                if ($page.StatusCode -eq 200 -and $page.Content.Contains('/operator') -and $page.Content.Contains('/login/kero')) {
+                  exit 0
+                }
+              } catch {
+                if ($server.HasExited) { throw }
+              }
+              Start-Sleep -Seconds 1
+            }
+            throw 'The local demo did not serve its role picker.'
+          } finally {
+            if (-not $server.HasExited) { Stop-Process -Id $server.Id }
+          }

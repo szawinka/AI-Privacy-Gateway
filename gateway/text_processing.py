@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Canonical text and manually selected spans for the local A-stage demo."""
 
 from dataclasses import dataclass, field

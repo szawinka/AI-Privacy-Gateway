@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Local, requester-managed dictionary of explicitly remembered values."""
 
 from contextlib import closing

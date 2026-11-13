@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 from dataclasses import fields, replace
 import unittest
 
@@ -37,15 +38,20 @@ class RoleAccessTests(unittest.TestCase):
         with self.assertRaises(AccessDenied):
             self.access.require_owner(self.reviewer, self.case)
 
-    def test_other_identity_or_session_cannot_access(self):
+    def test_owner_and_reviewer_can_log_in_later_with_same_identity(self):
         other_owner = Actor("other", self.sessions.open_session(), Role.REQUESTER)
         same_owner_new_session = replace(self.owner, session_id=self.sessions.open_session())
         same_reviewer_new_session = replace(self.reviewer, session_id=self.sessions.open_session())
-        for actor in (other_owner, same_owner_new_session):
-            with self.assertRaises(AccessDenied):
-                self.access.require_owner(actor, self.case)
         with self.assertRaises(AccessDenied):
-            self.access.reviewer_preview(same_reviewer_new_session, self.case)
+            self.access.require_owner(other_owner, self.case)
+        self.access.require_owner(same_owner_new_session, self.case)
+        self.access.reviewer_preview(same_reviewer_new_session, self.case)
+        self.access.require_case_access(same_reviewer_new_session, self.case)
+        other_reviewer = replace(same_reviewer_new_session, identity="other-reviewer")
+        with self.assertRaises(AccessDenied):
+            self.access.reviewer_preview(other_reviewer, self.case)
+        with self.assertRaises(AccessDenied):
+            self.access.require_case_access(other_reviewer, self.case)
 
     def test_decision_actor_for_all_four_levels(self):
         for risk in Risk:

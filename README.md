@@ -1,51 +1,24 @@
-# AI Privacy Gateway bírálói bemutató
+# AI Privacy Gateway — A-0.3.0
 
-Verzió A-0.2.0-rc1. A helyi szakdolgozati prototípus szintetikus példával és saját szöveggel próbálható ki. A csomagban forráskód, tesztek és telepítési útmutató található. A helyi adatbázisok az első futtatáskor jönnek létre.
+Károly Tamás szakdolgozati prototípusa (2026). A Windowsra előkészített forráscsomag helyi, három szerepkörös alkalmazás. Szintetikus példával vagy saját szöveggel próbálható. A külső modellhez a felhasználó külön konfigurálja saját szolgáltatói kapcsolatát és API-kulcsát. A kiadás **nem tartalmaz API-kulcsot, helyi ügyadatot vagy futási adatbázist**.
 
-## Telepítés
+## Windows — innen indulj
 
-CPython 3.14, pip és böngésző szükséges. A függőségek első telepítéséhez internetkapcsolat kell. Csomagold ki a forrást, majd lépj a README-t tartalmazó könyvtárba.
+1. Kövesd a [részletes Windows telepítési útmutatót](docs/TELEPITES_WINDOWS.md). Python 3.14 és első indításkor internet kell.
+2. A kulcs nélküli helyi próba indítója: **`Start-Windows.cmd`**.
+3. Saját OpenAI-kulcs használatához: **`Start-OpenAI-Windows.cmd`**, majd a helyi **Üzemeltető** felületen add meg a kulcsot és a hívási profilokat.
+4. A három szerep munkafolyamata a [felhasználói útmutatóban](docs/FELHASZNALOI_UTMUTATO.md) szerepel.
 
-### macOS és Linux
+A böngészős cím: **http://127.0.0.1:8765/**. A szolgáltatás a parancsablakban **Ctrl+C**-vel állítható le. A `.venv` és `.local` mappák az első használatkor helyben jönnek létre; ne töltsd fel őket.
 
-```sh
-python3.14 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python -m pip check
-.venv/bin/python -B -m gateway.web_demo --guided-demo
-```
+## Forrásellenőrzés
 
-### Windows indítás
+Windows Parancssorban a kicsomagolt mappából a `Start-Windows.cmd --check` telepíti a rögzített függőségeket, ellenőrzi őket és futtatja az automatizált teszteket. A GitHub Windows Actions munkafolyamata ugyanezt tiszta Windows-környezetben is ellenőrzi. Ez nem helyettesíti az összes bírálói gépen végzett próbát.
 
-Csomagold ki a ZIP-et, majd futtasd a `Start-Windows.cmd` fájlt. Az első futtatás létrehozza a projekt virtuális környezetét és telepíti a rögzített függőségeket. A futtatáshoz CPython 3.14 és a `py` parancs szükséges. A terminálban megjelenő helyi címet nyisd meg a böngészőben.
+Más rendszeren a forrás CPython 3.14 virtuális környezetből indítható. A Windows-útmutató és a kiadási ZIP Windowsra készült.
 
-### Windows PowerShell kézi indítás
+## Adatvédelmi határok
 
-```powershell
-py -3.14 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\python.exe -B -m gateway.web_demo --guided-demo
-```
+Az ügyek és az érzékeny értékek helyben, a `.local` alatt tárolódnak. A helyi ügytár nem alkalmazásszinten titkosított. Külső szolgáltató csak a külön jóváhagyott, kezelt kérés külön küldési lépésében kap tartalmat. Bírálói próbához használj szintetikus adatokat. A modellválasz helyességét a felhasználó ellenőrzi.
 
-A csempés kezdőlap a [helyi címen](http://127.0.0.1:8765/) érhető el. A kiválasztott szerepkör belépőoldalán a bemutató neve és kódja előre kitöltött. Az elkülönített demó futási adatai a `.local/futtatas/A/guided-demo` könyvtárba kerülnek. Leállítás a terminálban a **Ctrl+C** billentyűkkel.
-
-## Helyi próba
-
-1. Lépj be **Kérőként**. Indítsd el a dokumentumdemót, ellenőrizd a kezelt előnézetet, majd válaszd a **Jóváhagyás** és a **Helyi futtatás** gombot.
-2. A levélhez vagy a saját szöveg ellenőri próbájához lépj be **Ellenőrként** egy másik böngészőprofilban vagy privát ablakban. A két munkamenet maradjon nyitva.
-3. A kérői ablakban indíts levéldemót, vagy a **Saját szöveg** oldalon adj meg forrást és kérést. Jelölj meg védendő értéket, majd kérj maszkolt vagy tokenizált előnézetet ellenőrzésre.
-4. Az ellenőr a munkakosárból nyithatja meg a hozzá rendelt ügyet. Jóváhagyás után a kérő ugyanott nyithatja meg a futtatást. A jóváhagyás legfeljebb öt percig használható. Az ügylista az aktív munkamenethez kötődik.
-5. A kérő a **Mentett érzékeny elemek** alatt kereshet és kezelheti a korábban elmentett értékeket. A **Névfelismerő állapota** jelzi az opcionális modell elérhetőségét. A kézi kijelölés önmagában is használható.
-
-Az **Üzemeltető** kezeli a modellkapcsolatokat és hívási profilokat. Üres telepítésnél előbb kapcsolatot kell létrehozni, hogy profil készülhessen. A **Névfelismerő telepítése** menüpontban a letöltés jóváhagyással indítható. A modell és függőségei a `.local/nlp` alá kerülnek, külön környezetbe. A mentett modell ki- és bekapcsolható, illetve jóváhagyással újratelepíthető vagy eltávolítható.
-
-## Külső szolgáltatói próba
-
-A helyi demó rögzített válaszokkal működik és tiltja az API-kulcs mentését. Külső próba esetén külön, kézi belépésű példányt kell indítani a kiválasztott protokoll és pontos HTTPS-alapcím engedélyezésével. Az indítási paraméter alakja `--allow-https-target PROTOKOLL HTTPS_ALAPCÍM`. A terminál a három szerepkör kódját kiírja. A külön helyi tár a `--runtime-dir`, a helyi port a `--port` paraméterrel választható meg.
-
-Az üzemeltető a kapcsolatnál adja meg a szolgáltatói címet, modellazonosítót és saját API-kulcsát, majd létrehozza a feladathoz tartozó hívási profilt. Az API-kulcs az adott gép helyi, elkülönített SQLite-adatbázisába kerül. A szolgáltató a jóváhagyott kezelt kéréshez tartozó hitelesítési fejlécben kapja meg. Külső próbához használj szintetikus szöveget és ellenőrizd a szolgáltatói fiók feltételeit.
-
-## Ellenőrzés
-
-A forrás tesztjei a telepített virtuális környezet Python-parancsával futtathatók: `-B -m unittest discover -s gateway/tests -q`. A kiadásjelölt tiszta telepítési próbája és a Windows/Linux futtatás ellenőrzése külön lépés.
+Szerzőségi információ: [NOTICE.md](NOTICE.md). A repó jelenleg nem ad külön nyílt forrású felhasználási licencet.

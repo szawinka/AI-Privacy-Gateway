@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Opt-in HTTPS transport for an already approved provider request."""
 
 from contextlib import closing

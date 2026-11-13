@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 import asyncio
 import json
 from pathlib import Path
@@ -17,12 +18,12 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
             self.root / "audit.sqlite3", "test-owner", "test-reviewer", operator_code="test-operator"
         )
 
-    async def request(self, method, path, *, cookie="", data=None, origin=None, host="127.0.0.1:8765"):
+    async def request(self, method, path, *, cookie="", data=None, origin=None, host="127.0.0.1:8765", raw=None, content_type="application/x-www-form-urlencoded"):
         headers = [(b"host", host.encode())]
         if method == "POST":
             headers.extend([
                 (b"origin", (origin or f"http://{host}").encode()),
-                (b"content-type", b"application/x-www-form-urlencoded"),
+                (b"content-type", content_type.encode()),
             ])
         if cookie:
             headers.append((b"cookie", cookie.encode()))
@@ -39,7 +40,7 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
             nonlocal received
             if not received:
                 received = True
-                return {"type": "http.request", "body": urlencode(data or {}).encode()}
+                return {"type": "http.request", "body": raw if raw is not None else urlencode(data or {}).encode()}
             await asyncio.Future()
 
         async def send(event):
@@ -61,7 +62,13 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
     async def start(self, owner, task):
         status, headers, _ = await self.request("POST", "/cases", cookie=owner, data={"task": task})
         self.assertEqual(status, 303)
-        return headers[b"location"].decode()
+        location = headers[b"location"].decode()
+        self.assertTrue(location.startswith("/requester/case/"))
+        return location.replace("/requester", "", 1)
+
+    @staticmethod
+    def review_case(path):
+        return "/review" + path.removeprefix("/requester") if path.startswith(("/requester/case/", "/case/")) else path
 
     @staticmethod
     def approval(html):
@@ -85,22 +92,29 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
         status, _, html = await self.request("POST", doc + "/send", cookie=owner)
         self.assertEqual(status, 200)
         self.assertIn("Teszt Luca átvette", html)
+        self.assertIn("Eredeti bemenet és kért feladat", html)
+        self.assertIn('<mark class="type-PERSON">Teszt Luca</mark>', html)
+        self.assertIn("Foglald össze két mondatban", html)
         self.assertEqual((await self.request("POST", doc + "/send", cookie=owner))[0], 403)
 
         mail = await self.start(owner, "A-MAIL-01")
         status, _, html = await self.request("GET", mail, cookie=reviewer)
         self.assertEqual(status, 200)
         self.assertIn("[E-MAIL]", html)
-        self.assertNotIn("Teszt Mira", html)
-        self.assertNotIn("demo42@example.invalid", html)
+        self.assertIn('<mark class="type-PERSON">Teszt Mira</mark>', html)
+        self.assertIn('<mark class="type-EMAIL">demo42@example.invalid</mark>', html)
+        self.assertIn("Pontosan kért feladat", html)
+        self.assertIn("Kezelt előnézet", html)
         self.assertNotIn("Helyi futtatás", html)
         decision = self.approval(html)
         for method, route, cookie, fields in (
             ("POST", mail + "/decision", owner, decision),
-            ("GET", mail, await self.login("test-reviewer"), None),
             ("POST", mail + "/send", reviewer, None),
         ):
             self.assertEqual((await self.request(method, route, cookie=cookie, data=fields))[0], 403)
+        self.assertEqual((await self.request(
+            "GET", mail, cookie=await self.login("test-reviewer")
+        ))[0], 200)
         self.assertEqual((await self.request(
             "POST", mail + "/decision", cookie=reviewer, data=decision
         ))[0], 200)
@@ -119,11 +133,463 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
         owner = await self.login("test-owner")
         self.assertEqual((await self.request(
             "POST", "/cases", cookie=owner, data={"task": "A-MAIL-01"}
-        ))[0], 409)
+        ))[0], 303)
         doc = await self.start(owner, "A-DOC-01")
         self.assertEqual((await self.request("POST", "/logout", cookie=owner))[0], 303)
         self.assertEqual((await self.request("GET", doc, cookie=owner))[0], 401)
 
+    async def test_mail_handoff_waits_in_both_baskets_until_reviewer_logs_in(self):
+        owner = await self.login("test-owner")
+        mail = await self.start(owner, "A-MAIL-01")
+        owner_inbox = (await self.request("GET", "/inbox", cookie=owner))[2]
+        self.assertIn(mail, owner_inbox)
+        self.assertIn("Következő felelős:</strong> Ellenőr", owner_inbox)
+        self.assertEqual((await self.request("POST", mail + "/send", cookie=owner))[0], 403)
+
+        reviewer = await self.login("test-reviewer")
+        reviewer_inbox = (await self.request("GET", "/inbox", cookie=reviewer))[2]
+        self.assertIn(mail, reviewer_inbox)
+        self.assertIn("Megnyitás döntéshez", reviewer_inbox)
+        self.assertEqual((await self.request("POST", "/review/logout", cookie=reviewer))[0], 303)
+        self.assertIn("Döntésre vár", (await self.request("GET", "/inbox", cookie=owner))[2])
+
+        later_reviewer = await self.login("test-reviewer")
+        _, _, preview = await self.request("GET", mail, cookie=later_reviewer)
+        self.assertIn("[E-MAIL]", preview)
+        self.assertEqual((await self.request(
+            "POST", mail + "/decision", cookie=later_reviewer, data=self.approval(preview)
+        ))[0], 200)
+        self.assertEqual((await self.request("POST", "/review/logout", cookie=later_reviewer))[0], 303)
+        self.assertIn("Következő felelős:</strong> Kérő", (await self.request("GET", "/inbox", cookie=owner))[2])
+        self.assertEqual((await self.request("POST", mail + "/send", cookie=owner))[0], 200)
+
+    async def test_two_roles_in_one_browser_keep_distinct_case_views(self):
+        owner = await self.login("test-owner")
+        case = await self.start(owner, "A-MAIL-01")
+        status, headers, _ = await self.request(
+            "POST", "/login", cookie=owner,
+            data={"username": "ellenor", "code": "test-reviewer"},
+        )
+        self.assertEqual(status, 303)
+        reviewer = headers[b"set-cookie"].decode().split(";", 1)[0]
+        both = owner + "; " + reviewer
+        self.assertNotEqual(owner.split("=", 1)[0], reviewer.split("=", 1)[0])
+
+        owner_inbox = (await self.request("GET", "/requester/inbox", cookie=both))[2]
+        review_inbox = (await self.request("GET", "/review/inbox", cookie=both))[2]
+        self.assertIn(case, owner_inbox)
+        self.assertIn(case, review_inbox)
+        self.assertIn(f'action="/review{case}"', review_inbox)
+        self.assertIn("Ügy megtekintése", owner_inbox)
+        self.assertIn("Megnyitás döntéshez", review_inbox)
+        self.assertEqual((await self.request("GET", "/inbox", cookie=both))[0], 409)
+        self.assertEqual((await self.request("GET", case, cookie=both))[0], 409)
+
+        _, _, review_page = await self.request("GET", "/review" + case, cookie=both)
+        self.assertIn("Szerep: Ellenőr", review_page)
+        self.assertIn(f'action="/review{case}/decision"', review_page)
+        self.assertIn("Jóváhagyás", review_page)
+        _, _, owner_page = await self.request("GET", "/requester" + case, cookie=both)
+        self.assertIn("Szerep: Kérő", owner_page)
+        self.assertNotIn(f'action="{case}/decision"', owner_page)
+        self.assertEqual((await self.request(
+            "POST", "/review" + case + "/decision", cookie=both,
+            data=self.approval(review_page),
+        ))[0], 200)
+        self.assertEqual((await self.request("POST", "/logout", cookie=both))[0], 303)
+        self.assertIn(case, (await self.request("GET", "/review/inbox", cookie=reviewer))[2])
+
+    async def test_cases_survive_restart_with_actions_and_local_restoration(self):
+        import os
+        import stat
+
+        owner = await self.login("test-owner")
+        mail = await self.start(owner, "A-MAIL-01")
+        document = await self.start(owner, "A-DOC-01")
+        if os.name == "posix":
+            self.assertEqual(stat.S_IMODE((self.root / "cases.sqlite3").stat().st_mode), 0o600)
+
+        self.app = create_app(
+            self.root / "audit.sqlite3", "test-owner", "test-reviewer", operator_code="test-operator"
+        )
+        owner = await self.login("test-owner")
+        reviewer = await self.login("test-reviewer")
+        self.assertIn(mail, (await self.request("GET", "/review/inbox", cookie=reviewer))[2])
+        self.assertIn(document, (await self.request("GET", "/inbox", cookie=owner))[2])
+        _, _, review_page = await self.request("GET", "/review" + mail, cookie=reviewer)
+        self.assertIn("Jóváhagyás", review_page)
+        self.assertEqual((await self.request(
+            "POST", "/review" + mail + "/decision", cookie=reviewer,
+            data=self.approval(review_page),
+        ))[0], 200)
+        _, _, document_page = await self.request("GET", document, cookie=owner)
+        self.assertEqual((await self.request(
+            "POST", document + "/decision", cookie=owner,
+            data=self.approval(document_page),
+        ))[0], 200)
+
+        self.app = create_app(
+            self.root / "audit.sqlite3", "test-owner", "test-reviewer", operator_code="test-operator"
+        )
+        owner = await self.login("test-owner")
+        inbox = (await self.request("GET", "/inbox", cookie=owner))[2]
+        self.assertIn(mail, inbox)
+        self.assertIn(document, inbox)
+        self.assertIn("Jóváhagyva", inbox)
+        self.assertEqual((await self.request("POST", mail + "/send", cookie=owner))[0], 200)
+        status, _, document_result = await self.request("POST", document + "/send", cookie=owner)
+        self.assertEqual(status, 200)
+        self.assertIn("Teszt Luca átvette", document_result)
+
+        self.app = create_app(
+            self.root / "audit.sqlite3", "test-owner", "test-reviewer", operator_code="test-operator"
+        )
+        owner = await self.login("test-owner")
+        self.assertIn("Futtatás befejezve", (await self.request("GET", "/inbox", cookie=owner))[2])
+        restored = (await self.request("GET", document, cookie=owner))[2]
+        self.assertIn("Teszt Luca átvette", restored)
+        self.assertIn('<mark class="type-PERSON">Teszt Luca</mark>', restored)
+        self.assertIn("Pontosan kért feladat", restored)
+        reviewer = await self.login("test-reviewer")
+        self.assertIn(mail, (await self.request("GET", "/review/inbox", cookie=reviewer))[2])
+        self.assertIn('<mark class="type-EMAIL">demo42@example.invalid</mark>',
+                      (await self.request("GET", "/review" + mail, cookie=reviewer))[2])
+
+    async def test_returned_case_remains_in_both_baskets_after_restart(self):
+        owner = await self.login("test-owner")
+        case = await self.start(owner, "A-MAIL-01")
+        reviewer = await self.login("test-reviewer")
+        _, _, page = await self.request("GET", "/review" + case, cookie=reviewer)
+        decision = dict(self.approval(page), outcome="returned")
+        self.assertEqual((await self.request(
+            "POST", "/review" + case + "/decision", cookie=reviewer, data=decision,
+        ))[0], 200)
+        self.app = create_app(self.root / "audit.sqlite3", "test-owner", "test-reviewer")
+        owner = await self.login("test-owner")
+        reviewer = await self.login("test-reviewer")
+        for path, cookie in (("/inbox", owner), ("/review/inbox", reviewer)):
+            inbox = (await self.request("GET", path, cookie=cookie))[2]
+            self.assertIn(case, inbox)
+            self.assertIn("Visszaadva javításra", inbox)
+        self.assertEqual((await self.request("POST", case + "/send", cookie=owner))[0], 403)
+
+
+    async def test_sample_catalog_and_separate_filtered_draft_inbox(self):
+        from gateway.requester_cases import samples
+        owner = await self.login("test-owner")
+        reviewer = await self.login("test-reviewer")
+        status, headers, _ = await self.request("GET", "/", cookie=owner)
+        self.assertEqual((status, headers[b"location"]), (303, b"/samples"))
+        status, _, page = await self.request("GET", "/samples?sample_id=DEV-DOC-06", cookie=owner)
+        self.assertEqual(status, 200)
+        self.assertNotIn(" · piros</option>", page)
+        self.assertIn("Az ellenőr a kezelt előnézet alapján dönt", page)
+        self.assertIn('<mark class="type-', page)
+        self.assertIn("Elvárt működés és válasz", page)
+        self.assertNotIn("EVAL-", page)
+        for sample in samples().values():
+            self.assertIn(sample["id"], page)
+        self.assertEqual((await self.request("GET", "/samples", cookie=reviewer))[0], 401)
+        self.assertEqual((await self.request("GET", "/samples?sample_id=EVAL-DOC-01", cookie=owner))[0], 404)
+
+        status, _, _ = await self.request("POST", "/sample-drafts", cookie=owner, data={"sample_id": "DEV-DOC-06"})
+        self.assertEqual(status, 303)
+        _, _, page = await self.request("GET", "/inbox", cookie=owner)
+        self.assertIn("DEV-DOC-06", page)
+        self.assertIn("Piszkozat – feldolgozás előtt", page)
+        self.assertNotIn("Elvárt eredmény", page)
+        draft_id = re.search(r'name="draft_id" value="([a-f0-9]{32})"', page)[1]
+        self.assertNotIn(draft_id, (await self.request("GET", "/review/inbox", cookie=reviewer))[2])
+        self.assertEqual((await self.request("GET", f"/own-input?draft_id={draft_id}", cookie=reviewer))[0], 401)
+        later_owner = await self.login("test-owner")
+        self.assertIn(draft_id, (await self.request("GET", "/inbox", cookie=later_owner))[2])
+        self.assertEqual((await self.request("GET", f"/own-input?draft_id={draft_id}", cookie=later_owner))[0], 200)
+        self.assertNotIn(draft_id, (await self.request("GET", "/inbox?query=no-such-case", cookie=owner))[2])
+        self.assertNotIn(draft_id, (await self.request("GET", "/inbox?status=Jóváhagyva", cookie=owner))[2])
+        self.assertIn(draft_id, (await self.request("GET", "/inbox?query=DEV-DOC-06", cookie=owner))[2])
+        self.assertEqual((await self.request("POST", "/logout", cookie=owner))[0], 303)
+        self.assertEqual((await self.request("GET", f"/own-input?draft_id={draft_id}", cookie=owner))[0], 401)
+        self.app = create_app(self.root / "audit.sqlite3", "test-owner", "test-reviewer")
+        restarted_owner = await self.login("test-owner")
+        self.assertIn(draft_id, (await self.request("GET", "/inbox", cookie=restarted_owner))[2])
+
+    async def test_all_dev_samples_can_enter_the_correct_review_path(self):
+        from html import unescape
+        from gateway.requester_cases import samples
+        owner = await self.login("test-owner")
+        reviewer = await self.login("test-reviewer")
+        for sample in samples().values():
+            if not sample["id"].startswith("DEV-"):
+                continue
+            with self.subTest(sample=sample["id"]):
+                self.assertEqual((await self.request(
+                    "POST", "/sample-local", cookie=owner, data={"sample_id": sample["id"]},
+                ))[0], 303)
+                _, _, inbox = await self.request("GET", "/inbox", cookie=owner)
+                draft_id = re.findall(r'name="draft_id" value="([a-f0-9]{32})"', inbox)[0]
+                _, _, page = await self.request("GET", f"/own-input?draft_id={draft_id}", cookie=owner)
+                fields = {
+                    "source": sample["source"], "request": sample["request"], "draft_id": draft_id,
+                    "stamp": re.search(r'name="stamp" value="([a-f0-9]{64})"', page)[1],
+                    "selections": unescape(re.search(r'name="selections" value="([^"]*)"', page)[1]),
+                }
+                status, headers, page = await self.request(
+                    "POST", "/own-input/token-preview?review=1", cookie=owner, data=fields,
+                )
+                self.assertEqual(status, 303, page[-1200:])
+                case = headers[b"location"].decode()
+                status, _, page = await self.request("GET", case, cookie=owner)
+                self.assertEqual(status, 200)
+                requires_reviewer = sample["risk"] in ("narancs", "piros")
+                self.assertEqual('name="outcome"' in page, not requires_reviewer)
+                status, _, page = await self.request("GET", self.review_case(case), cookie=reviewer)
+                self.assertEqual(status, 200 if requires_reviewer else 403)
+                self.assertNotIn(draft_id, (await self.request("GET", "/inbox", cookie=owner))[2])
+
+    async def test_dev_model_trial_cannot_fall_back_to_local_receipt(self):
+        from html import unescape
+        from gateway.requester_cases import samples
+        from unittest.mock import patch
+        owner = await self.login("test-owner")
+        sample = samples()["DEV-DOC-01"]
+        status, headers, _ = await self.request(
+            "POST", "/sample-start", cookie=owner, data={"sample_id": sample["id"]},
+        )
+        self.assertEqual(status, 303)
+        _, _, page = await self.request("GET", headers[b"location"].decode(), cookie=owner)
+        self.assertIn("Ez a helyi demó nem használ modellkapcsolatot", page)
+        fields = dict(
+            source=sample["source"], request=sample["request"],
+            stamp=re.search(r'name="stamp" value="([a-f0-9]{64})"', page)[1],
+            draft_id=re.search(r'name="draft_id" value="([a-f0-9]{32})"', page)[1],
+            selections=unescape(re.search(r'name="selections" value="([^"]*)"', page)[1]),
+        )
+        with patch("gateway.demo_flow.local_response") as local:
+            status, _, _ = await self.request("POST", "/own-input/token-preview?review=1", cookie=owner, data=fields)
+            self.assertEqual(status, 409)
+            local.assert_not_called()
+        self.assertIn(fields["draft_id"], (await self.request("GET", "/inbox", cookie=owner))[2])
+
+    async def test_single_treatment_choice_previews_locally_and_keeps_model_gate(self):
+        from html import unescape
+        from gateway.requester_cases import samples
+
+        owner = await self.login("test-owner")
+        sample = samples()["DEV-DOC-01"]
+        status, headers, _ = await self.request(
+            "POST", "/sample-start", cookie=owner, data={"sample_id": sample["id"]},
+        )
+        self.assertEqual(status, 303)
+        _, _, page = await self.request("GET", headers[b"location"].decode(), cookie=owner)
+        self.assertIn("Minta előkészítése", page)
+        self.assertIn('name="treatment"', page)
+        self.assertIn('data-help=', page)
+        self.assertIn("Ügy előkészítése megerősítésre", page)
+        fields = {
+            "source": sample["source"], "request": sample["request"],
+            "stamp": re.search(r'name="stamp" value="([a-f0-9]{64})"', page)[1],
+            "draft_id": re.search(r'name="draft_id" value="([a-f0-9]{32})"', page)[1],
+            "selections": unescape(re.search(r'name="selections" value="([^"]*)"', page)[1]),
+        }
+        for treatment, heading in (("token", "Tokenizált előnézet"), ("mask", "Maszkolt előnézet")):
+            status, _, preview = await self.request(
+                "POST", "/own-input/preview-selected", cookie=owner,
+                data=dict(fields, treatment=treatment),
+            )
+            self.assertEqual(status, 200)
+            self.assertIn(heading, preview)
+        status, _, invalid = await self.request(
+            "POST", "/own-input/preview-selected", cookie=owner,
+            data=dict(fields, treatment="unknown"),
+        )
+        self.assertEqual(status, 400)
+        self.assertIn("A művelet nem sikerült", invalid)
+        self.assertIn("Válassz érvényes kezelési módot", invalid)
+        self.assertEqual((await self.request(
+            "POST", "/own-input/start", cookie=owner, data=dict(fields, treatment="token"),
+        ))[0], 409)
+        self.assertIn(fields["draft_id"], (await self.request("GET", "/inbox", cookie=owner))[2])
+
+    async def test_dev_model_trial_requires_approval_and_excludes_expected_answer(self):
+        from html import unescape
+        from unittest.mock import patch
+        from gateway.operator_config import OperatorConfig
+        from gateway.provider_https import ProviderHTTPS
+        from gateway.provider_messages import json_bytes
+        from gateway.requester_cases import samples
+
+        endpoint = "https://model.example.invalid/v1"
+        transport = ProviderHTTPS(frozenset({("openai-responses", endpoint)}))
+        catalog = samples()
+        for sample in catalog.values():
+            sample["expected"] = ["REFERENCE-ONLY-DO-NOT-SEND"]
+        with patch("gateway.requester_web.samples", return_value=catalog):
+            self.app = create_app(self.root / "audit.sqlite3", "test-owner", "test-reviewer", provider_https=transport)
+        config = OperatorConfig(self.root / "operator")
+        connection = config.save_connection(dict(
+            name="Teszt", protocol="openai-responses", endpoint=endpoint, model="synthetic",
+            auth="api-key", api_key="synthetic-key", enabled="yes",
+        ))
+        profiles = {task: config.save_profile(dict(
+            name=task, task=task, connection_id=connection, max_tokens="100", timeout_seconds="30",
+        )) for task in ("summary", "mail-draft")}
+        owner = await self.login("test-owner")
+        reviewer = await self.login("test-reviewer")
+        response = json_bytes(dict(status="completed", output=[dict(
+            type="message", role="assistant", status="completed",
+            content=[dict(type="output_text", text="Szintetikus modellválasz.")],
+        )]))
+        with patch.object(transport, "send", return_value=response) as remote, patch("gateway.demo_flow.local_response") as local:
+            for sample_id in ("DEV-DOC-01", "DEV-MAIL-03"):
+                sample = catalog[sample_id]
+                _, headers, _ = await self.request("POST", "/sample-start", cookie=owner, data={"sample_id": sample_id})
+                _, _, page = await self.request("GET", headers[b"location"].decode(), cookie=owner)
+                task = "summary" if "DOC" in sample_id else "mail-draft"
+                fields = dict(
+                    source=sample["source"], request=sample["request"], profile_id=profiles[task],
+                    stamp=re.search(r'name="stamp" value="([a-f0-9]{64})"', page)[1],
+                    draft_id=re.search(r'name="draft_id" value="([a-f0-9]{32})"', page)[1],
+                    selections=unescape(re.search(r'name="selections" value="([^"]*)"', page)[1]),
+                    treatment="token",
+                )
+                self.assertIn("Külső modellválasz", page)
+                status, _, local_preview = await self.request(
+                    "POST", "/own-input/preview-selected", cookie=owner, data=fields,
+                )
+                self.assertEqual(status, 200)
+                self.assertIn("Tokenizált előnézet", local_preview)
+                status, headers, _ = await self.request("POST", "/own-input/start", cookie=owner, data=fields)
+                self.assertEqual(status, 303)
+                case = headers[b"location"].decode()
+                before = remote.call_count
+                self.assertEqual((await self.request("POST", case+"/send", cookie=owner))[0], 403)
+                self.assertEqual(remote.call_count, before)
+                decider = reviewer if sample["risk"] in ("narancs", "piros") else owner
+                _, _, page = await self.request("GET", self.review_case(case) if decider == reviewer else case, cookie=decider)
+                self.assertNotIn("synthetic-key", page)
+                await self.request("POST", (self.review_case(case) if decider == reviewer else case)+"/decision", cookie=decider, data=self.approval(page))
+                status, _, page = await self.request("POST", case+"/send", cookie=owner)
+                self.assertEqual(status, 200)
+                self.assertIn("Szintetikus modellválasz.", page)
+                wire = remote.call_args.args[1]
+                self.assertNotIn(b"REFERENCE-ONLY-DO-NOT-SEND", wire)
+                self.assertNotIn(b"synthetic-key", wire)
+                self.assertEqual(remote.call_args.kwargs["api_key"], "synthetic-key")
+            self.assertEqual(remote.call_count, 2)
+            local.assert_not_called()
+
+    async def test_fixed_demo_draft_retains_expected_response_and_idempotent_start(self):
+        owner = await self.login("test-owner")
+        await self.request("POST", "/sample-drafts", cookie=owner, data={"sample_id": "A-DOC-01"})
+        _, _, page = await self.request("GET", "/inbox", cookie=owner)
+        draft_path = re.search(r'action="(/sample-drafts/[a-f0-9]{32})"', page)[1]
+        self.assertEqual((await self.request("GET", draft_path, cookie=owner))[0], 200)
+        status, headers, _ = await self.request("POST", draft_path + "/start", cookie=owner)
+        self.assertEqual(status, 303)
+        case = headers[b"location"].decode()
+        self.assertEqual((await self.request("POST", draft_path + "/start", cookie=owner))[1][b"location"], headers[b"location"])
+        _, _, page = await self.request("GET", case, cookie=owner)
+        await self.request("POST", case + "/decision", cookie=owner, data=self.approval(page))
+        status, _, page = await self.request("POST", case + "/send", cookie=owner)
+        self.assertEqual(status, 200)
+        self.assertIn("Teszt Luca átvette", page)
+
+    async def test_own_draft_save_resume_and_process_replaces_inbox_row(self):
+        from html import unescape
+        from unittest.mock import patch
+        owner = await self.login("test-owner")
+        reviewer = await self.login("test-reviewer")
+        with patch("gateway.own_input_web.suggest_names", return_value=None):
+            status, headers, _ = await self.request("POST", "/own-input", cookie=owner, data={
+                "source": "Teszt Anna <b>adat</b>", "request": "Írj összefoglalót.", "save_only": "yes",
+            })
+            self.assertEqual((status, headers[b"location"]), (303, b"/requester/inbox"))
+            _, _, page = await self.request("GET", "/inbox", cookie=owner)
+            draft_id = re.search(r'name="draft_id" value="([a-f0-9]{32})"', page)[1]
+            self.assertNotIn("Teszt Anna", page)
+            _, _, page = await self.request("GET", f"/own-input?draft_id={draft_id}", cookie=owner)
+        self.assertIn("&lt;b&gt;adat&lt;/b&gt;", page)
+        self.assertIn('id="selection-form"', page)
+        fields = {
+            "source": "Teszt Anna <b>adat</b>", "request": "Írj összefoglalót.", "draft_id": draft_id,
+            "stamp": re.search(r'name="stamp" value="([a-f0-9]{64})"', page)[1],
+            "selections": json.dumps([{"section": "source", "start": 0, "end": 10, "kind": "PERSON"}]),
+        }
+        self.assertEqual((await self.request("POST", "/own-input/save", cookie=owner, data=fields))[0], 303)
+        status, headers, page = await self.request("POST", "/own-input/token-preview?review=1", cookie=owner, data=fields)
+        self.assertEqual(status, 303, page[-500:])
+        case = headers[b"location"].decode()
+        self.assertNotIn(draft_id, (await self.request("GET", "/inbox", cookie=owner))[2])
+        self.assertIn(case.rsplit("/", 1)[-1], (await self.request("GET", "/review/inbox", cookie=reviewer))[2])
+
+    async def test_uploaded_text_is_local_escaped_and_resumable(self):
+        from unittest.mock import patch
+
+        owner = await self.login("test-owner")
+        boundary = "gateway-upload-test"
+        raw = (
+            f"--{boundary}\r\nContent-Disposition: form-data; name=\"task\"\r\n\r\nmail-draft\r\n"
+            f"--{boundary}\r\nContent-Disposition: form-data; name=\"request\"\r\n\r\nÍrj választ.\r\n"
+            f"--{boundary}\r\nContent-Disposition: form-data; name=\"document\"; filename=\"teszt.txt\"\r\nContent-Type: text/plain\r\n\r\n"
+            f"Teszt Anna <script>\r\n--{boundary}--\r\n"
+        ).encode()
+        with patch("gateway.own_input_web.suggest_names", return_value=None):
+            status, _, html = await self.request(
+                "POST", "/own-input/upload", cookie=owner, raw=raw,
+                content_type=f"multipart/form-data; boundary={boundary}",
+            )
+        self.assertEqual(status, 200)
+        self.assertIn("E-mail-választervezet", html)
+        self.assertIn("Teszt Anna &lt;script&gt;", html)
+        self.assertIn('id="document-preview"', html)
+        self.assertIn("Nagy előnézet", html)
+        self.assertNotIn("teszt.txt", html)
+        from test_document_input import document
+        docx = document("<w:p><w:r><w:t>Egyszerű dokumentum</w:t></w:r></w:p>")
+        docx_raw = raw.replace(b'filename="teszt.txt"', b'filename="teszt.docx"').replace(
+            "Teszt Anna <script>".encode(), docx,
+        )
+        with patch("gateway.own_input_web.suggest_names", return_value=None):
+            docx_status, _, docx_html = await self.request(
+                "POST", "/own-input/upload", cookie=owner, raw=docx_raw,
+                content_type=f"multipart/form-data; boundary={boundary}",
+            )
+        self.assertEqual(docx_status, 200)
+        self.assertIn("Egyszerű dokumentum", docx_html)
+
+        self.assertEqual((await self.request(
+            "POST", "/own-input/upload", raw=raw, content_type=f"multipart/form-data; boundary={boundary}",
+        ))[0], 401)
+        oversized = b"x" * (1024 * 1024 + 16385)
+        self.assertEqual((await self.request(
+            "POST", "/own-input/upload", cookie=owner, raw=oversized,
+            content_type=f"multipart/form-data; boundary={boundary}",
+        ))[0], 400)
+
+    async def test_sample_edit_allows_category_selection_and_dictionary_save(self):
+        from html import unescape
+        owner = await self.login("test-owner")
+        status, headers, _ = await self.request(
+            "POST", "/sample-edit", cookie=owner, data={"sample_id": "A-DOC-01"},
+        )
+        self.assertEqual(status, 303)
+        _, _, html = await self.request("GET", headers[b"location"].decode(), cookie=owner)
+        self.assertIn('id="selection-form"', html)
+        self.assertIn('id="kind-source"', html)
+        self.assertIn('<option value="PERSON">Személy</option>', html)
+        self.assertIn("Megjegyzés későbbre", (await self.request("GET", "/own-input.js"))[2])
+        from gateway.requester_cases import samples
+        sample = samples()["A-DOC-01"]
+        fields = {
+            "source": sample["source"], "request": sample["request"],
+            "stamp": re.search(r'name="stamp" value="([a-f0-9]{64})"', html)[1],
+            "draft_id": re.search(r'name="draft_id" value="([a-f0-9]{32})"', html)[1],
+        }
+        start = sample["source"].index("Teszt Műhely")
+        fields["selections"] = json.dumps([dict(section="source", start=start, end=start+len("Teszt Műhely"), kind="SENSITIVE")])
+        self.assertEqual((await self.request("POST", "/own-input/remember", cookie=owner, data=fields))[0], 200)
+        _, _, page = await self.request("GET", "/sensitive-values", cookie=owner)
+        self.assertIn("Teszt Műhely", page)
 
     async def test_own_input_masks_unicode_spans_and_escapes_html(self):
         owner = await self.login("test-owner")
@@ -157,7 +623,7 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
             "POST", "/own-input/preview", cookie=other_owner, data=fields
         ))[0], 400)
         reviewer = await self.login("test-reviewer")
-        self.assertEqual((await self.request("GET", "/own-input", cookie=reviewer))[0], 403)
+        self.assertEqual((await self.request("GET", "/own-input", cookie=reviewer))[0], 401)
 
     async def test_own_input_blocks_unmasked_repetitions_and_overlaps(self):
         owner = await self.login("test-owner")
@@ -183,13 +649,21 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
         owner = await self.login("test-owner")
         reviewer = await self.login("test-reviewer")
         for ready in (False, True):
-            with patch("gateway.web_demo.nlp_installed", return_value=ready), patch("gateway.web_demo.nlp_active", return_value=ready):
+            details = dict(name="hu_core_news_md", model_version="3.8.1",
+                           spacy_version="3.8.18", installed_at="2026-11-13T10:00:00+00:00",
+                           time_source="Helyben rögzített.", load_method="Kérésenként külön helyi folyamat.")
+            with patch("gateway.web_demo.nlp_installed", return_value=ready), patch("gateway.web_demo.nlp_active", return_value=ready), patch("gateway.web_demo.nlp_details", return_value=details if ready else None):
                 status, _, html = await self.request("GET", "/recognizer-setup", cookie=owner)
                 self.assertEqual(status, 200)
+                self.assertIn("Mire szolgál?", html)
+                if ready:
+                    self.assertIn("hu_core_news_md 3.8.1", html)
+                    self.assertIn("2026-11-13T10:00:00+00:00", html)
+                    self.assertIn("Kérésenként külön helyi folyamat.", html)
                 self.assertNotIn("Telepítés indítása", html)
                 self.assertEqual("fordulj az Üzemeltetőhöz" in html, not ready)
                 self.assertIn("telepítve van" if ready else "nincs telepítve", html)
-        self.assertEqual((await self.request("GET", "/recognizer-setup", cookie=reviewer))[0], 403)
+        self.assertEqual((await self.request("GET", "/recognizer-setup", cookie=reviewer))[0], 401)
 
     async def test_recognizer_install_requires_operator_and_consent(self):
         from unittest.mock import patch
@@ -237,20 +711,22 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
         reviewer = await self.login("test-reviewer")
         case = await self.start(owner, "A-MAIL-01")
         for cookie in (owner, reviewer):
-            _, _, html = await self.request("GET", "/", cookie=cookie)
+            _, _, html = await self.request("GET", "/inbox", cookie=cookie)
             self.assertIn(case, html)
             self.assertIn("Döntésre vár", html)
             self.assertNotIn("Teszt Mira", html)
-        for code in ("test-owner", "test-reviewer"):
-            _, _, html = await self.request("GET", "/", cookie=await self.login(code))
-            self.assertNotIn(case, html)
+        other_owner = await self.login("test-owner")
+        self.assertIn(case, (await self.request("GET", "/inbox", cookie=other_owner))[2])
+        later_reviewer = await self.login("test-reviewer")
+        self.assertIn(case, (await self.request("GET", "/inbox", cookie=later_reviewer))[2])
         _, _, preview = await self.request("GET", case, cookie=reviewer)
         self.assertEqual((await self.request(
             "POST", case + "/decision", cookie=reviewer, data=self.approval(preview),
         ))[0], 200)
-        self.assertIn("Futtatás megnyitása", (await self.request("GET", "/", cookie=owner))[2])
+        self.assertIn("Futtatás megnyitása", (await self.request("GET", "/inbox", cookie=owner))[2])
         self.assertEqual((await self.request("POST", case + "/send", cookie=owner))[0], 200)
-        self.assertIn("Futtatás befejezve", (await self.request("GET", "/", cookie=owner))[2])
+        self.assertIn("Futtatás befejezve", (await self.request("GET", "/inbox", cookie=owner))[2])
+        self.assertIn("Futtatás befejezve", (await self.request("GET", "/review/inbox", cookie=reviewer))[2])
 
     async def test_name_suggestions_seed_preview_and_manual_fallback(self):
         from html import unescape
@@ -287,7 +763,7 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(status, 200)
                 self.assertIn(note, html)
                 self.assertIn('name="selections" value="[]"', html)
-                self.assertIn("Személy megjelölése", html)
+                self.assertIn("Kijelölés hozzáadása", html)
                 self.assertNotIn("private detail", html)
 
     async def test_sensitive_dictionary_save_search_reuse_edit_and_delete(self):
@@ -304,7 +780,7 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(status, 200)
         stamp = re.search(r'name="stamp" value="([a-f0-9]{64})"', page)[1]
         payload = dict(fields, stamp=stamp, selections=json.dumps([selection]))
-        self.assertEqual((await self.request("GET", "/sensitive-values", cookie=reviewer))[0], 403)
+        self.assertEqual((await self.request("GET", "/sensitive-values", cookie=reviewer))[0], 401)
         self.assertEqual((await self.request(
             "POST", "/own-input/remember", cookie=owner, data=dict(payload, stamp="invalid")
         ))[0], 400)
@@ -387,10 +863,19 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
         payload = dict(fields, stamp=stamp, selections=json.dumps([
             {"section": "source", "kind": "SENSITIVE", "start": 0, "end": 8},
         ]))
-        self.assertEqual((await self.request(
+        status, headers, _ = await self.request(
             "POST", "/own-input/token-preview?review=1", cookie=owner, data=payload
-        ))[0], 409)
+        )
+        self.assertEqual(status, 303)
+        pending_case = headers[b"location"].decode()
+        owner_inbox = (await self.request("GET", "/inbox", cookie=owner))[2]
+        self.assertIn(pending_case, owner_inbox)
+        self.assertIn("Következő felelős:</strong> Ellenőr", owner_inbox)
+        self.assertEqual((await self.request("POST", pending_case + "/send", cookie=owner))[0], 403)
         reviewer = await self.login("test-reviewer")
+        reviewer_inbox = (await self.request("GET", "/inbox", cookie=reviewer))[2]
+        self.assertIn(pending_case.rsplit("/", 1)[-1], reviewer_inbox)
+        self.assertIn("Megnyitás döntéshez", reviewer_inbox)
         for route, marker in (("preview", "[ÉRZÉKENY]"), ("token-preview", "[[A:ERZEKENY:")):
             with self.subTest(route=route):
                 status, headers, _ = await self.request(
@@ -398,10 +883,10 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
                 )
                 self.assertEqual(status, 303)
                 case = headers[b"location"].decode()
-                status, _, page = await self.request("GET", case, cookie=reviewer)
+                status, _, page = await self.request("GET", self.review_case(case), cookie=reviewer)
                 self.assertEqual(status, 200)
                 self.assertIn(marker, page)
-                self.assertNotIn("BELSŐ-42", page)
+                self.assertIn('<mark class="type-SENSITIVE">BELSŐ-42</mark>', page)
                 self.assertNotIn("Helyi kapupróba", page)
                 self.assertEqual((await self.request(
                     "POST", case + "/send", cookie=owner
@@ -411,11 +896,11 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
                     "POST", case + "/decision", cookie=owner, data=decision
                 ))[0], 403)
                 self.assertEqual((await self.request(
-                    "POST", case + "/decision", cookie=reviewer, data=decision
+                    "POST", self.review_case(case) + "/decision", cookie=reviewer, data=decision
                 ))[0], 200)
                 self.assertEqual((await self.request(
-                    "POST", case + "/send", cookie=reviewer
-                ))[0], 403)
+                    "POST", self.review_case(case) + "/send", cookie=reviewer
+                ))[0], 404)
                 status, _, page = await self.request("POST", case + "/send", cookie=owner)
                 self.assertEqual(status, 200)
                 self.assertIn("A helyi kapupróba sikerült.", page)
@@ -515,7 +1000,7 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
         profile_id = config.save_profile(profile_fields)
         owner = await self.login("test-owner")
         reviewer = await self.login("test-reviewer")
-        fields = {"source": "BELSŐ-42 egyeztetés", "request": "Írj rövid választ."}
+        fields = {"source": "BELSŐ-42 egyeztetés", "request": "Írj rövid választ.", "task": "mail-draft"}
         with patch("gateway.own_input_web.suggest_names", return_value=None):
             status, _, page = await self.request("POST", "/own-input", cookie=owner, data=fields)
         self.assertEqual(status, 200)
@@ -531,12 +1016,13 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
             )
             self.assertEqual(status, 303)
             case = headers[b"location"].decode()
-            _, _, page = await self.request("GET", case, cookie=reviewer)
+            _, _, page = await self.request("GET", self.review_case(case), cookie=reviewer)
             self.assertNotIn(connection_fields["api_key"], page)
-            self.assertNotIn("BELSŐ-42", page)
+            self.assertIn('<mark class="type-SENSITIVE">BELSŐ-42</mark>', page)
+            self.assertIn("Írj rövid választ.", page)
             preview = unescape(re.search(r"<pre>(.*?)</pre>", page, re.S)[1]).encode("utf-8")
             status, _, _ = await self.request(
-                "POST", case + "/decision", cookie=reviewer, data=self.approval(page)
+                "POST", self.review_case(case) + "/decision", cookie=reviewer, data=self.approval(page)
             )
             self.assertEqual(status, 200)
             wire = unescape(re.search(r'<pre id="provider-body">(.*?)</pre>', page, re.S)[1]).encode("utf-8")
@@ -561,6 +1047,10 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
             status, _, page = await self.request("POST", case + "/send", cookie=owner)
             self.assertEqual(status, 200)
             self.assertIn("Válasz: BELSŐ-42", page)
+            self.assertIn('<mark class="type-SENSITIVE">BELSŐ-42</mark>', page)
+            self.assertIn("Pontosan kért feladat", page)
+            self.assertIn("Írj rövid választ.", page)
+            self.assertIn('id="provider-body"', page)
             adapter.assert_called_once_with("anthropic-messages", wire)
         case, _, _ = await create_and_approve()
         with patch("gateway.demo_flow.local_response", return_value=reply(token[:-1])):
@@ -632,17 +1122,21 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
                 )
                 self.assertEqual(status, 303)
                 case = headers[b"location"].decode()
-                _, _, page = await self.request("GET", case, cookie=reviewer)
+                self.assertNotIn(secret.encode(), (self.root / "cases.sqlite3").read_bytes())
+                self.app = create_app(audit_path, "test-owner", "test-reviewer", provider_https=transport)
+                owner = await self.login("test-owner")
+                reviewer = await self.login("test-reviewer")
+                _, _, page = await self.request("GET", self.review_case(case), cookie=reviewer)
                 self.assertIn("Külső HTTPS-küldés", page)
                 self.assertNotIn(secret, page)
-                self.assertNotIn("BELSŐ-42", page)
+                self.assertIn('<mark class="type-SENSITIVE">BELSŐ-42</mark>', page)
                 wire = unescape(re.search(r'<pre id="provider-body">(.*?)</pre>', page, re.S)[1]).encode()
                 self.assertEqual((await self.request("POST", case + "/send", cookie=owner))[0], 403)
                 resolver.assert_not_called()
                 self.assertEqual((await self.request(
-                    "POST", case + "/decision", cookie=reviewer, data=self.approval(page)
+                    "POST", self.review_case(case) + "/decision", cookie=reviewer, data=self.approval(page)
                 ))[0], 200)
-                self.assertEqual((await self.request("POST", case + "/send", cookie=reviewer))[0], 403)
+                self.assertEqual((await self.request("POST", self.review_case(case) + "/send", cookie=reviewer))[0], 404)
                 token = re.search(rb"\[\[A:ERZEKENY:[^]]+\]\]", wire)[0].decode()
                 simulated = constructor.return_value
                 reply = simulated.getresponse.return_value
@@ -712,7 +1206,7 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
         ))[0], 403)
         for code, role in (("test-owner", "Kérő"), ("test-reviewer", "Ellenőr")):
             cookie = await self.login(code)
-            _, _, page = await self.request("GET", "/", cookie=cookie)
+            _, _, page = await self.request("GET", "/inbox", cookie=cookie)
             self.assertIn(f"Szerep: {role}", page)
         status, headers, _ = await self.request(
             "POST", "/operator/login", data={"username": "uzemelteto", "code": "test-operator"}
@@ -726,3 +1220,34 @@ class WebDemoTests(unittest.IsolatedAsyncioTestCase):
             "POST", "/operator/connections", cookie=operator,
             data={"auth": "api-key", "api_key": "must-not-be-saved"},
         ))[0], 400)
+
+    async def test_model_capable_local_prefill_covers_three_roles_without_api_key(self):
+        from gateway.operator_config import OperatorConfig
+        from gateway.provider_https import ProviderHTTPS
+
+        private = OperatorConfig(self.root / "operator")
+        private.save_connection({
+            "name": "Helyi modellpróba", "protocol": "openai-responses",
+            "endpoint": "https://model.example.invalid/v1", "model": "synthetic",
+            "auth": "api-key", "api_key": "private-test-key", "enabled": "yes",
+        })
+        self.app = create_app(
+            self.root / "audit.sqlite3", "test-owner", "test-reviewer",
+            operator_code="test-operator",
+            provider_https=ProviderHTTPS(frozenset({("openai-responses", "https://model.example.invalid/v1")})),
+            prefill_role_logins=True,
+        )
+        _, _, home = await self.request("GET", "/")
+        self.assertIn("A beállított modell", home)
+        for code in ("test-owner", "test-reviewer", "test-operator", "private-test-key"):
+            self.assertNotIn(code, home)
+        for path, code in (("/login/kero", "test-owner"), ("/login/ellenor", "test-reviewer")):
+            status, _, form = await self.request("GET", path)
+            self.assertEqual(status, 200)
+            self.assertIn(f'value="{code}"', form)
+            self.assertNotIn("private-test-key", form)
+        status, _, operator = await self.request("GET", "/operator")
+        self.assertEqual(status, 200)
+        self.assertIn('value="uzemelteto"', operator)
+        self.assertIn('value="test-operator"', operator)
+        self.assertNotIn("private-test-key", operator)

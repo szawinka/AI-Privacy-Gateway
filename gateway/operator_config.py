@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Local connection and generation profiles for the operator workspace."""
 
 from contextlib import closing, contextmanager

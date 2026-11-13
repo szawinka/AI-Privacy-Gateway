@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Authorization rules for trusted, server-resolved demo identities."""
 
 from dataclasses import dataclass, field
@@ -72,15 +73,24 @@ class RoleAccess:
             raise AccessDenied("Session or request unavailable")
 
     def require_owner(self, actor: Actor, case: CaseAccess) -> None:
-        """Check access to owner-only operations, including access to raw input."""
+        """Check access to operations reserved for the case owner."""
         self._require_live(actor, case)
-        if actor != case.owner:
+        if actor.role is not Role.REQUESTER or actor.identity != case.owner.identity:
             raise AccessDenied("Owner access required")
 
     def _require_reviewer(self, actor: Actor, case: CaseAccess) -> None:
         self._require_live(actor, case)
-        if actor.role is not Role.REVIEWER or actor != case.reviewer:
+        if not self.is_assigned_reviewer(actor, case):
             raise AccessDenied("Assigned reviewer access required")
+
+    @staticmethod
+    def is_assigned_reviewer(actor: Actor, case: CaseAccess) -> bool:
+        """The assignment identifies a reviewer account, not one login session."""
+        return (
+            actor.role is Role.REVIEWER
+            and case.reviewer is not None
+            and actor.identity == case.reviewer.identity
+        )
 
     def require_case_access(self, actor: Actor, case: CaseAccess) -> None:
         if actor.role is Role.REQUESTER:

@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Text request and response formats for the supported provider protocols."""
 
 import json

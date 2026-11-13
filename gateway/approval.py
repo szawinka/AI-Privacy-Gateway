@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Process-local decisions for a frozen, server-built payload."""
 
 from collections.abc import Callable
@@ -117,6 +118,29 @@ class DecisionStore:
                 return None, False
             return decision.outcome, self._clock() >= decision.expires_at
 
+    def restore_decision(
+        self, payload: FrozenPayload, *, identity: str, role, outcome: Outcome,
+        remaining_seconds: float,
+    ) -> None:
+        """Recreate a locally recorded decision after a process restart."""
+        case = payload.case
+        expected = case.reviewer if case.risk.value in ("orange", "red") else case.owner
+        if expected is None or role is not expected.role or identity != expected.identity:
+            raise ValueError("Stored decision actor does not match the case")
+        decision = Decision(
+            Actor(identity, "restored-decision", role), payload.version, payload.digest,
+            outcome, self._clock() + remaining_seconds,
+        )
+        with self._lock:
+            self._decisions[case.prepared.binding] = decision
+
+    def forget_if_same(self, payload: FrozenPayload, decision: Decision) -> None:
+        """Undo an in-memory decision if its durable write failed."""
+        binding = payload.case.prepared.binding
+        with self._lock:
+            if self._decisions.get(binding) is decision:
+                del self._decisions[binding]
+
     def require_approval(self, requester: Actor, payload: FrozenPayload, body: bytes) -> None:
         """Validate the current decision and the exact proposed adapter bytes."""
         with self._lock:
@@ -130,6 +154,7 @@ class DecisionStore:
                 or body != payload.adapter_body
             ):
                 raise DecisionUnavailable("Approval unavailable for this payload")
-            self._access.require_decision_actor(decision.actor, payload.case)
+            # record() already authenticated the decider; a later logout must not
+            # invalidate their still-current approval of these exact bytes.
             if self._clock() >= decision.expires_at:
                 raise DecisionUnavailable("Approval expired")

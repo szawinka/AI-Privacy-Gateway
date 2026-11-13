@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest

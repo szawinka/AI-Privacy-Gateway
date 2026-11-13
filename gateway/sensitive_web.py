@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Requester-only dictionary management. Search values stay out of URLs."""
 
 import sqlite3
@@ -44,7 +45,7 @@ _PAGE = TEMPLATES.from_string("""
 </form>
 {% endfor %}
 
-</main></html>
+<footer class="credit">Károly Tamás szakdolgozati prototípusa · 2026</footer></main></html>
 """)
 
 

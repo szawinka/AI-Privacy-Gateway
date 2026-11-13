@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """In-memory reversible tokens for the local A-stage demo."""
 
 from dataclasses import dataclass, field

@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Prepare the two fixed synthetic fixtures and their reviewable payloads."""
 
 from dataclasses import dataclass, field
@@ -67,7 +68,6 @@ def prepare_demo(
         reviewer.role is not Role.REVIEWER
         or reviewer.identity == owner.identity
         or reviewer.session_id == owner.session_id
-        or not sessions.is_active(reviewer.session_id)
     )):
         raise AccessDenied("Invalid demo identities")
 

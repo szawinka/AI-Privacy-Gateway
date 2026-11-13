@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 from dataclasses import replace
 import re
 import unittest

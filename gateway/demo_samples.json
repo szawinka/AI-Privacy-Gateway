@@ -1,0 +1,635 @@
+[
+  {
+    "id": "DEV-DOC-01",
+    "title": "Belső eszközátadás",
+    "risk": "sárga",
+    "source": "Eszközátadási feljegyzés\n\nA labor és az oktatásszervezési csoport közötti eszközmozgást a reggeli nyitás után rögzítettük. Teszt Dóra két próbakészüléket vett át a laborból, és az átvételi lapot aláírta. A készülékekhez külön dobozban érkeztek a kábelek, a tartóelemek pedig a laborban maradtak. A kapcsolattartó címe dora@eszkoz.invalid. A kézbesítési visszajelzés erre a címre várható, azonban a levél kiküldéséről a feljegyzés nem rendelkezik.\n\nAz átvétel a fizikai eszközökre vonatkozik; Teszt Dóra az üzembe helyezést nem vállalta. A szoftveres hozzáférést a műszaki csoport külön kezeli. A szekrény kulcsa továbbra is a labor ügyeletesénél található. A két készülék elhelyezése megtörtént, ezért a laborból újabb kiadás egyelőre nem szükséges.\n\nA következő lépés a tartozéklista helyi ellenőrzése, az üzembe helyezésről csak ezt követően lehet egyeztetni. Az ellenőrzés során a dobozok tartalmát a csomagolási jegyzékkel kell összevetni. Ha eltérés derül ki, azt a lap hátoldalán szükséges rögzíteni. A labor a hiányzó tartóelemek rendelkezésre állását még nem igazolta vissza. Az oktatási bemutató pontos időpontját a csoport az ellenőrzés után választja ki.",
+    "request": "Készíts legfeljebb 120 szavas vezetői összefoglalót az alábbi dokumentumról. Emeld ki a döntési állapotot, a felelősöket és a folytatás feltételeit. A bizonytalanságot és tagadást őrizd meg; a háttérrészleteket tömörítheted.",
+    "occurrences": [
+      {
+        "occurrence_id": "DEV-DOC-01-O001",
+        "source_section": "source",
+        "start": 123,
+        "end": 133,
+        "text": "Teszt Dóra",
+        "category": "SZEMELY",
+        "referent_id": "DEV-DOC-01-E1",
+        "protected_value_id": "DEV-DOC-01-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-DOC-01-O002",
+        "source_section": "source",
+        "start": 318,
+        "end": 337,
+        "text": "dora@eszkoz.invalid",
+        "category": "EMAIL",
+        "referent_id": "DEV-DOC-01-E1",
+        "protected_value_id": "DEV-DOC-01-V2",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-DOC-01-O003",
+        "source_section": "source",
+        "start": 492,
+        "end": 502,
+        "text": "Teszt Dóra",
+        "category": "SZEMELY",
+        "referent_id": "DEV-DOC-01-E1",
+        "protected_value_id": "DEV-DOC-01-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      }
+    ],
+    "expected": [
+      "Teszt Dóra két próbakészüléket vett át a laborból, és az átvételi lapot aláírta.",
+      "Az átvétel a fizikai eszközökre vonatkozik; Teszt Dóra az üzembe helyezést nem vállalta.",
+      "A következő lépés a tartozéklista helyi ellenőrzése, az üzembe helyezésről csak ezt követően lehet egyeztetni."
+    ],
+    "criteria": [
+      "Készíts legfeljebb 120 szavas vezetői összefoglalót az alábbi dokumentumról. Emeld ki a döntési állapotot, a felelősöket és a folytatás feltételeit. A bizonytalanságot és tagadást őrizd meg; a háttérrészleteket tömörítheted."
+    ],
+    "version": "0.2",
+    "source_sha256": "71803a394f24a1843b461feaa2276538d3c26a275c3079ca9fc53d7269f982e3",
+    "request_sha256": "542e6a4b0b8167b6c7e30a6e975380ff4533917be808e4ebade27679f3e62223",
+    "categories": [
+      "EMAIL",
+      "SZEMELY"
+    ]
+  },
+  {
+    "id": "DEV-DOC-02",
+    "title": "Nyilvános műhelyprogram",
+    "risk": "zöld",
+    "source": "Műhelynap programtervezete\n\nA nyilvános műhelynapot 2099. november 17-én, 9–12 óra között tartják meg. A délelőtti program három nyílt bemutatóból áll; a részvétel díjmentes, előzetes regisztráció nem szükséges. Az első állomáson az alapanyagok előkészítését, a másodikon a kézi összeállítást, a harmadikon a kész tárgyak ellenőrzését ismertetik. A látogatók az állomásokhoz külön is csatlakozhatnak.\n\nA programszervező feladata a végleges délelőtti program összeállítása 2099. november 10-ig. Az elkészült beosztást a bemutatókat vezető segítőkkel egyezteti. A programban az állomások sorrendje és a közöttük tartott rövid szünetek is szerepelnek.\n\nA teremfelelős feladata a közös munkafelületek és az eszközállomások előkészítése 2099. november 16-án, 16 óráig. A bejárat mellett várakozóhelyet kell szabadon hagynia, hogy a munkaterületek megközelíthetőek maradjanak. Az előkészítés állapotáról a programszervezőnek jelez vissza.\n\nA délutáni ismétlés még jóváhagyásra vár; annak időpontja és felelőse nincs kijelölve. A lehetőséget a várható érdeklődés és a segítők rendelkezésre állása alapján egyeztetik. Addig a délutáni program nem hirdethető meg biztos eseményként.\n\nA programszervező a végleges délelőtti időbeosztást a műhelynap kezdete előtt a helyszínen kifüggeszti. A nyilvános tájékoztató ezt a beosztást követi; személyhez kötött jelentkezési lista nem készül.",
+    "request": "Készíts legfeljebb 120 szavas vezetői összefoglalót a programtervezetről. Foglald össze a programot és a részvétel feltételeit. Sorold fel a forrásban megadott teendőket, felelős szerepköröket és határidőket, és külön jelezd a nyitott döntést. Hiányzó felelőst vagy időpontot ne találj ki; a bizonytalanságot őrizd meg.",
+    "occurrences": [],
+    "expected": [
+      "A nyilvános műhelynapot 2099. november 17-én, 9–12 óra között tartják meg.",
+      "A délelőtti program három nyílt bemutatóból áll; a részvétel díjmentes, előzetes regisztráció nem szükséges.",
+      "A programszervező feladata a végleges délelőtti program összeállítása 2099. november 10-ig.",
+      "A teremfelelős feladata a közös munkafelületek és az eszközállomások előkészítése 2099. november 16-án, 16 óráig.",
+      "A délutáni ismétlés még jóváhagyásra vár; annak időpontja és felelőse nincs kijelölve.",
+      "A programszervező a végleges délelőtti időbeosztást a műhelynap kezdete előtt a helyszínen kifüggeszti."
+    ],
+    "criteria": [
+      "Készíts legfeljebb 120 szavas vezetői összefoglalót a programtervezetről. Foglald össze a programot és a részvétel feltételeit. Sorold fel a forrásban megadott teendőket, felelős szerepköröket és határidőket, és külön jelezd a nyitott döntést. Hiányzó felelőst vagy időpontot ne találj ki; a bizonytalanságot őrizd meg."
+    ],
+    "version": "0.3",
+    "source_sha256": "943f6d99be38d1251fefb5274cac8a92fbc6025b64b9677ddacd340968109408",
+    "request_sha256": "72ede2117bd866b527da538e1fde02db8df4be12ed81c569bc0c85675d1c7c62",
+    "categories": []
+  },
+  {
+    "id": "DEV-DOC-03",
+    "title": "Karbantartási hívási lista",
+    "risk": "sárga",
+    "source": "Karbantartási munkalap\n\nA próbaüzem karbantartási felelőse Teszt Márk; feladata a műszak végéig elkészítendő állapotjelentés. Az ügyeleti telefonmezőben +00 000 101 0001 szerepel. A munkalap az indításkor és leállításkor tapasztalt jelenségeket külön sorban kéri rögzíteni. A kezelő a szokatlan hangot a burkolat bal oldalán észlelte, de a hang eredetét nem sikerült azonosítani.\n\nA készülék a megfigyelés alatt nem állt le. A burkolatot nem bontották meg, és a kezelő nem végzett alkatrészcserét. Az állapotjelentéshez a helyben készült ellenőrzőlap használható. A korábbi, másik berendezésre vonatkozó feljegyzést a műszakvezető kivette a dossziéból, hogy a két megfigyelés ne keveredjen össze.\n\nTeszt Márknak nincs felhatalmazása alkatrész rendelésére. Ha a jelentés javítást indokol, arról külön döntést kell kérni. A rendelkezésre álló megfigyelésből még nem állapítható meg biztos alkatrészhiba. A soron következő műszak a jelenség ismétlődését figyelheti meg, de újabb üzemi korlátozásról ez a lap nem rendelkezik. A műszakvezető a jelentés kézhezvétele után választja ki a további ellenőrzés módját.",
+    "request": "Készíts legfeljebb 120 szavas vezetői összefoglalót az alábbi dokumentumról. Emeld ki a döntési állapotot, a felelősöket és a folytatás feltételeit. A bizonytalanságot és tagadást őrizd meg; a háttérrészleteket tömörítheted.",
+    "occurrences": [
+      {
+        "occurrence_id": "DEV-DOC-03-O001",
+        "source_section": "source",
+        "start": 59,
+        "end": 69,
+        "text": "Teszt Márk",
+        "category": "SZEMELY",
+        "referent_id": "DEV-DOC-03-E1",
+        "protected_value_id": "DEV-DOC-03-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-DOC-03-O002",
+        "source_section": "source",
+        "start": 153,
+        "end": 169,
+        "text": "+00 000 101 0001",
+        "category": "TELEFON",
+        "referent_id": "DEV-DOC-03-E1",
+        "protected_value_id": "DEV-DOC-03-V2",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-DOC-03-O003",
+        "source_section": "source",
+        "start": 698,
+        "end": 711,
+        "text": "Teszt Márknak",
+        "category": "SZEMELY",
+        "referent_id": "DEV-DOC-03-E1",
+        "protected_value_id": "DEV-DOC-03-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      }
+    ],
+    "expected": [
+      "A próbaüzem karbantartási felelőse Teszt Márk; feladata a műszak végéig elkészítendő állapotjelentés.",
+      "Teszt Márknak nincs felhatalmazása alkatrész rendelésére.",
+      "A rendelkezésre álló megfigyelésből még nem állapítható meg biztos alkatrészhiba."
+    ],
+    "criteria": [
+      "Készíts legfeljebb 120 szavas vezetői összefoglalót az alábbi dokumentumról. Emeld ki a döntési állapotot, a felelősöket és a folytatás feltételeit. A bizonytalanságot és tagadást őrizd meg; a háttérrészleteket tömörítheted."
+    ],
+    "version": "0.2",
+    "source_sha256": "b23e595f1a7d3239fab17fb0623e16bc43296a57854a5c1f5acda13c6ebbb9e6",
+    "request_sha256": "542e6a4b0b8167b6c7e30a6e975380ff4533917be808e4ebade27679f3e62223",
+    "categories": [
+      "SZEMELY",
+      "TELEFON"
+    ]
+  },
+  {
+    "id": "DEV-DOC-04",
+    "title": "Próbaárlista felülvizsgálata",
+    "risk": "narancs",
+    "source": "Anyagbeszerzési előterjesztés\n\nA Teszt Borostyán Műhely belső ajánlata 125 000 tesztforint anyagköltséget tartalmaz; a szállítás nincs benne az összegben. Az ajánlat az oktatási eszközök tartókereteinek elkészítéséhez érkezett. A műhely külön csomagolásban adná át a kisebb rögzítőelemeket, a hosszabb elemeket pedig a megrendelőnek kellene elszállítania. A csomagolás módja az ajánlatban leírt ár része, a fuvar megszervezése külön feladat.\n\nA belső igényfelmérés szerint a régi keretekből több rész még felhasználható. A raktári jegyzék azonban nem különíti el a teljes készletet a korábban félretett elemektől. Emiatt az új anyag teljes mennyisége még nem rendelhető meg megalapozottan. A műhely a szükséges méreteket a végleges igénylista után tudja visszaigazolni.\n\nA beszerzés csak a helyi készletellenőrzés után indítható; fizetési kötelezettség még nem keletkezett. Az ellenőrzést végző csoportnak először a használható és a javítandó elemeket kell szétválogatnia. A használhatóság megállapítását nem helyettesíti, hogy egy elem szerepel a régi nyilvántartásban. Az eredményt a műhelynek átadandó tételes listán kell összesíteni. A lista jóváhagyása után új ajánlati visszaigazolás szükséges.\n\nA döntés előkészítéséhez a beszerzési csoport két szempontot kért tisztázni. Az egyik a saját készlet felhasználása, a másik a szállítás tényleges szervezési igénye. A raktári felmérés eredményét a korábbi rendelési mennyiséggel külön kell összevetni. A keretösszegből önmagában nem következik, hogy a régi darabszám változatlanul szükséges.\n\nA beérkezett dokumentumot a csoport tájékoztató ajánlatként tartja nyilván. A kiválasztott szállítási módot és annak díját a döntési laphoz majd külön kell csatolni. A fuvar költségére most nem áll rendelkezésre számszerű adat. A döntési lap kitöltésekor ezt nyitott tételként kell feltüntetni, a hiányzó összeget nem lehet az anyagárból visszaszámítani. A keretek gyártásának kezdete és az oktatási felhasználás időpontja szintén a végleges megrendeléstől függ.\n\nA készletfelméréshez a raktár a javítandó elemeket külön asztalon készíti elő. Az elemek állapotát egyenként nézik át, és a munkalapon jelölik, ha egy alkatrész csak további javítás után használható. A felmérés célja a tényleges új igény megállapítása. A beszerzési csoport az eredeti ajánlatot addig összehasonlítási alapként őrzi, nem végrehajtható megrendelésként.",
+    "request": "Készíts legfeljebb 120 szavas vezetői összefoglalót az alábbi dokumentumról. Emeld ki a döntési állapotot, a felelősöket és a folytatás feltételeit. A bizonytalanságot és tagadást őrizd meg; a háttérrészleteket tömörítheted.",
+    "occurrences": [
+      {
+        "occurrence_id": "DEV-DOC-04-O001",
+        "source_section": "source",
+        "start": 33,
+        "end": 55,
+        "text": "Teszt Borostyán Műhely",
+        "category": "SZERVEZET",
+        "referent_id": "DEV-DOC-04-E2",
+        "protected_value_id": "DEV-DOC-04-V2",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "narancs",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-DOC-04-O002",
+        "source_section": "source",
+        "start": 71,
+        "end": 90,
+        "text": "125 000 tesztforint",
+        "category": "PENZUGY",
+        "referent_id": "DEV-DOC-04-E3",
+        "protected_value_id": "DEV-DOC-04-V3",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "narancs",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      }
+    ],
+    "expected": [
+      "A Teszt Borostyán Műhely belső ajánlata 125 000 tesztforint anyagköltséget tartalmaz; a szállítás nincs benne az összegben.",
+      "A beszerzés csak a helyi készletellenőrzés után indítható; fizetési kötelezettség még nem keletkezett."
+    ],
+    "criteria": [
+      "Készíts legfeljebb 120 szavas vezetői összefoglalót az alábbi dokumentumról. Emeld ki a döntési állapotot, a felelősöket és a folytatás feltételeit. A bizonytalanságot és tagadást őrizd meg; a háttérrészleteket tömörítheted."
+    ],
+    "version": "0.2",
+    "source_sha256": "1eec0d9a9ade3e0b22b0b918141515e4297bd642639ae690e7edfc348e95056a",
+    "request_sha256": "542e6a4b0b8167b6c7e30a6e975380ff4533917be808e4ebade27679f3e62223",
+    "categories": [
+      "PENZUGY",
+      "SZERVEZET"
+    ]
+  },
+  {
+    "id": "DEV-DOC-05",
+    "title": "Toldalékos felelősjelölés",
+    "risk": "sárga",
+    "source": "Szerkesztési átadólap\n\nA SYN-DEV-SZERK-05 munkához tartozó címjegyzék szerkesztését Teszt Emese kapta. A korábbi változatban a főcímek eltérő elnevezéssel szerepelnek, ezért a tartalomjegyzék és a fejezetkezdések nem követhetőek egységesen. A munkapéldány két helyi példányban áll rendelkezésre: az egyik a szerkesztőé, a másik az ellenőrzéshez készült.\n\nA címsorokat módosítani kell, a törzsszöveg tartalmát változatlanul kell hagyni. A javítandó címeket a melléklet sorolja fel. A mellékletet Teszt Emesének kell átadni, hogy ugyanazon lista alapján dolgozzon, mint az ellenőrző személy. A régi címjegyzék a lezárt iratok között marad, az új változat számozását a szerkesztési laphoz kell kötni.\n\nA szerkesztés után a címjegyzék és a fejezetkezdések egyezését kell ellenőrizni. A munka nem tartalmi felülvizsgálat. Ha a szerkesztő a törzsszövegben ellentmondást talál, azt külön megjegyzésként jelezheti, de a jelen feladat alapján nem írhatja át. A két helyi példányt az ellenőrzés előtt nem szabad önállóan tovább szerkeszteni. A végső változat kijelölése az egyezés ellenőrzése után történik, addig mindkét példány munkapéldány marad.",
+    "request": "Készíts legfeljebb 120 szavas vezetői összefoglalót az alábbi dokumentumról. Emeld ki a döntési állapotot, a felelősöket és a folytatás feltételeit. A bizonytalanságot és tagadást őrizd meg; a háttérrészleteket tömörítheted.",
+    "occurrences": [
+      {
+        "occurrence_id": "DEV-DOC-05-O001",
+        "source_section": "source",
+        "start": 25,
+        "end": 41,
+        "text": "SYN-DEV-SZERK-05",
+        "category": "PROJEKT",
+        "referent_id": "DEV-DOC-05-E2",
+        "protected_value_id": "DEV-DOC-05-V2",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-DOC-05-O002",
+        "source_section": "source",
+        "start": 84,
+        "end": 95,
+        "text": "Teszt Emese",
+        "category": "SZEMELY",
+        "referent_id": "DEV-DOC-05-E1",
+        "protected_value_id": "DEV-DOC-05-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-DOC-05-O003",
+        "source_section": "source",
+        "start": 495,
+        "end": 509,
+        "text": "Teszt Emesének",
+        "category": "SZEMELY",
+        "referent_id": "DEV-DOC-05-E1",
+        "protected_value_id": "DEV-DOC-05-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      }
+    ],
+    "expected": [
+      "A SYN-DEV-SZERK-05 munkához tartozó címjegyzék szerkesztését Teszt Emese kapta.",
+      "A címsorokat módosítani kell, a törzsszöveg tartalmát változatlanul kell hagyni.",
+      "A szerkesztés után a címjegyzék és a fejezetkezdések egyezését kell ellenőrizni."
+    ],
+    "criteria": [
+      "Készíts legfeljebb 120 szavas vezetői összefoglalót az alábbi dokumentumról. Emeld ki a döntési állapotot, a felelősöket és a folytatás feltételeit. A bizonytalanságot és tagadást őrizd meg; a háttérrészleteket tömörítheted."
+    ],
+    "version": "0.2",
+    "source_sha256": "3bc9515f2c0467745d0958da7634b8f12c87e6d80c4f157b996db894f5fae65b",
+    "request_sha256": "542e6a4b0b8167b6c7e30a6e975380ff4533917be808e4ebade27679f3e62223",
+    "categories": [
+      "PROJEKT",
+      "SZEMELY"
+    ]
+  },
+  {
+    "id": "DEV-DOC-06",
+    "title": "Mesterséges személyzeti eset",
+    "risk": "piros",
+    "source": "Személyzeti munkaszervezési feljegyzés\n\nTeszt Ottó beosztásának felülvizsgálata folyamatban van; a jelenlegi állapot SYN-HR-06: ideiglenes feladatmentesítés. A műszakcsoport a kieső ellenőrzési feladatokat átmenetileg a meglévő beosztásban osztotta szét. A változtatásról a csoportvezető tájékoztatta az érintett munkaterületeket. A feljegyzéshez nem csatoltak magánéleti indokot vagy személyes előzményeket.\n\nVégleges elbocsátási döntés nem született. A munkaszervezési intézkedés a napi feladatok ellátását biztosítja. A felülvizsgálat lezárására a csoportvezető nem kapott időpontot, ezért tartós új beosztást sem hirdetett ki. A meglévő feladatjegyzékben az átmeneti helyettesítést külön soron vezetik, hogy a végleges döntés után visszakövethető legyen a változás.\n\nA végleges személyzeti döntést kizárólag a kijelölt személyzeti felelős hozhatja meg. A csoportvezető a munkafolyamatok folytonosságáról ad tájékoztatást, a felülvizsgálat kimeneteléről nem nyilatkozik. A munkatársak a helyettesítéshez szükséges feladatlistát kapják meg, az ügy részletes háttéradatait nem. A következő egyeztetés előtt a csoportvezető összegyűjti a helyettesítésből adódó munkaterhelést. A helyettesítés tapasztalatait a munkaszervezési részben tartják nyilván, nem minősítik a személyzeti eljárás eredményének.\n\nA helyettesítés követéséhez a csoportvezető a napi feladatokat a szokásos munkalapon tartja nyilván. A lap az elvégzett ellenőrzéseket és az átadás állapotát mutatja, az érintett személyről nem gyűjt további részletes adatot. A feladatokat a rendelkezésre álló munkaidő alapján osztják el. A helyettesítés nem jelent végleges munkakör-változást a többi munkatárs számára sem.\n\nA reggeli egyeztetésen a csoportvezető az elvégzendő feladatokat ismerteti. A munkatársak az aktuális ellenőrzési kör és a szükséges átadás alapján tájékozódnak. A megbeszélés célja annak biztosítása, hogy az átmeneti változás miatt egyetlen előírt ellenőrzés se maradjon ki. Az ügy személyzeti hátterének megvitatása a napi munkaszervezésnek nem része.\n\nA helyettesítési lapot a műszak végén az ügyeletes ellenőr nézi át. Ha egy feladat nem készült el, azt nyitott tételként adja át a következő műszaknak. A hiányzó feladatot nem lehet automatikusan az érintett munkatárs terhére írni, mert a lap csak az adott műszak feladatteljesítését rögzíti. Az okok tisztázása külön egyeztetést igényelhet.\n\nA csoportvezető a személyzeti felelőstől a munkaszervezéshez szükséges állapotjelzést várja. Addig a beosztás átmeneti megoldásként szerepel a tervben. A visszajelzés hiánya nem értelmezhető sem az intézkedés véglegesítésének, sem az automatikus megszűnésének. A feladatok elosztását a következő műszakokra is az ismert állapot szerint kell megtervezni.\n\nA helyi iratkezelésben a személyzeti ügy és a műszaklista külön hivatkozást kap. A munkaszervezési lapról csak a feladatok ellátásához szükséges rész kerül a műszakcsoport elé. A részletes személyzeti dokumentumot a csoportvezető nem csatolja a közös munkalaphoz. A hozzáférés célja és a szükséges adatkör ezért az iratok rendezésekor is megkülönböztetendő.\n\nA következő egyeztetésre az átmeneti helyettesítés tapasztalatairól kell összesítést készíteni. Az összesítésben a többletfeladat és a ténylegesen rendelkezésre álló kapacitás szerepel. A csoportvezető ebből tudja megállapítani, hogy szükséges-e másik munkaszervezési megoldás. A kapacitásról szóló megállapítás nem minősíti a folyamatban lévő személyzeti ügy kimenetelét.\n\nA feljegyzés készítésekor a végleges döntés időpontja nem ismert. Az érintett munkatársnak sem lehet olyan visszatérési vagy lezárási napot ígérni, amelyet a kijelölt felelős nem közölt. A csoportvezető a rendelkezésére álló állapotot adhatja tovább, és jelezheti, hogy az egyeztetés folyamatban van. A további intézkedések szükségességéről a döntés után lehet pontos helyzetképet készíteni.\n\nA munkacsoportnak az átmeneti időszak alatt is a megszokott ellenőrzési rendet kell követnie. A feladatokat nem szabad kihagyni arra hivatkozva, hogy a személyzeti ügy még nem zárult le. Ha az erőforrás nem elegendő, a hiányt a műszakvezető elé kell vinni, aki a munkaszervezésben illetékes. Az ilyen egyeztetés nem keletkeztet személyzeti döntési jogot.\n\nA felülvizsgálat lezárása után a helyettesítési lapot és a végleges beosztást össze kell vetni. A korábbi átmeneti feladatok addig nem törölhetők a nyilvántartásból, amíg az átadásuk nem követhető. A végső helyzetképet a kijelölt felelős tájékoztatásához kell kötni. A jelen feljegyzés ezt a későbbi állapotot még nem tartalmazza.\n\nA műszakvezető az átadáskor az elvégzett munkáról kér rövid visszajelzést. A személyzeti ügy megítélése helyett a feladatok folytonosságát kell ellenőriznie.",
+    "request": "Készíts legfeljebb 120 szavas vezetői összefoglalót az alábbi dokumentumról. Emeld ki a döntési állapotot, a felelősöket és a folytatás feltételeit. A bizonytalanságot és tagadást őrizd meg; a háttérrészleteket tömörítheted.",
+    "occurrences": [
+      {
+        "occurrence_id": "DEV-DOC-06-O001",
+        "source_section": "source",
+        "start": 40,
+        "end": 50,
+        "text": "Teszt Ottó",
+        "category": "SZEMELY",
+        "referent_id": "DEV-DOC-06-E1",
+        "protected_value_id": "DEV-DOC-06-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "piros",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-DOC-06-O002",
+        "source_section": "source",
+        "start": 117,
+        "end": 156,
+        "text": "SYN-HR-06: ideiglenes feladatmentesítés",
+        "category": "HR",
+        "referent_id": "DEV-DOC-06-E1",
+        "protected_value_id": "DEV-DOC-06-V2",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "piros",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      }
+    ],
+    "expected": [
+      "Teszt Ottó beosztásának felülvizsgálata folyamatban van; a jelenlegi állapot SYN-HR-06: ideiglenes feladatmentesítés.",
+      "Végleges elbocsátási döntés nem született.",
+      "A végleges személyzeti döntést kizárólag a kijelölt személyzeti felelős hozhatja meg."
+    ],
+    "criteria": [
+      "Készíts legfeljebb 120 szavas vezetői összefoglalót az alábbi dokumentumról. Emeld ki a döntési állapotot, a felelősöket és a folytatás feltételeit. A bizonytalanságot és tagadást őrizd meg; a háttérrészleteket tömörítheted."
+    ],
+    "version": "0.2",
+    "source_sha256": "ec4cf5b74fdb6a31ed76828cb9616db3a517736f3ca9e16c805d86bf53332c8b",
+    "request_sha256": "542e6a4b0b8167b6c7e30a6e975380ff4533917be808e4ebade27679f3e62223",
+    "categories": [
+      "HR",
+      "SZEMELY"
+    ]
+  },
+  {
+    "id": "DEV-MAIL-01",
+    "title": "Kölcsönzési visszakérdezés",
+    "risk": "sárga",
+    "source": "Feladó: Teszt Lilla <lilla@kolcson.invalid>\nTárgy: Adapterek kölcsönzése a pénteki bemutatóhoz\n\nKedves Eszközcsoport!\n\nPéntekre két tesztadaptert szeretnék kölcsönkérni a bemutatóhoz; ha csak egy érhető el, azt is elfogadom. A helyiségben a csatlakozók típusát már ellenőriztük, a saját kábeleinket magunkkal visszük. A bemutató után az eszközöket ugyanoda tudjuk visszavinni, ahol átvesszük őket.\n\nAz átvételi időt még nem egyeztettük. Kérlek, jelezzétek, hogy mennyi adapter áll rendelkezésre, és kivel tudom az átvételt pontosítani. Addig a bemutató részletes beosztását nyitva hagyom. A termet lefoglaltuk, de az eszközfoglalásról még nincs visszaigazolásom.\n\nKöszönöm a segítséget!\nTeszt Lilla",
+    "request": "Készíts rövid, udvarias magyar választervezetet az alábbi beérkező levélre. A levél elküldése nem része a feladatnak. Jelezd, hogy a készletet ellenőrizzük; eszközt és átvételi időt még ne ígérj.",
+    "occurrences": [
+      {
+        "occurrence_id": "DEV-MAIL-01-O001",
+        "source_section": "source",
+        "start": 8,
+        "end": 19,
+        "text": "Teszt Lilla",
+        "category": "SZEMELY",
+        "referent_id": "DEV-MAIL-01-E1",
+        "protected_value_id": "DEV-MAIL-01-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-MAIL-01-O002",
+        "source_section": "source",
+        "start": 21,
+        "end": 42,
+        "text": "lilla@kolcson.invalid",
+        "category": "EMAIL",
+        "referent_id": "DEV-MAIL-01-E1",
+        "protected_value_id": "DEV-MAIL-01-V2",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-MAIL-01-O003",
+        "source_section": "source",
+        "start": 687,
+        "end": 698,
+        "text": "Teszt Lilla",
+        "category": "SZEMELY",
+        "referent_id": "DEV-MAIL-01-E1",
+        "protected_value_id": "DEV-MAIL-01-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      }
+    ],
+    "expected": [
+      "Péntekre két tesztadaptert szeretnék kölcsönkérni a bemutatóhoz; ha csak egy érhető el, azt is elfogadom.",
+      "Az átvételi időt még nem egyeztettük."
+    ],
+    "criteria": [
+      "Jelezd, hogy a készletet ellenőrizzük; eszközt és átvételi időt még ne ígérj."
+    ],
+    "version": "0.2",
+    "source_sha256": "af6f6c64d23d4dd340835020868fc357a8c9ab91c71461056859a37879753433",
+    "request_sha256": "e0dc6e66248d4fb861b5538c929696a6ae303eb034b23186d774cfb5febbe486",
+    "categories": [
+      "EMAIL",
+      "SZEMELY"
+    ]
+  },
+  {
+    "id": "DEV-MAIL-02",
+    "title": "Nyílt tájékoztató pontosítása",
+    "risk": "zöld",
+    "source": "Tárgy: Kérdezési lehetőség a nyílt tájékoztatón\n\nKedves Szervezők!\n\nA közzétett programot olvasva szeretném tisztázni, hogy az előadás után lesz-e lehetőség helyben kérdezni. A nyilvános program tíz perc kérdésidőt jelez az előadás után. Nekem elsősorban a bemutatott eszközök hétköznapi használatáról lenne kérdésem, ezért jó lenne tudni, hogy ezt ott feltehetem-e.\n\nAz online részvétel lehetőségét is keresem, mert aznap nehezen tudok korán odaérni. A közlemény nem ígér online közvetítést. Ha erről még nincs új információ, a helyszíni részvétellel tervezek, és a kérdésemet előre felírom.\n\nA helyszíni részvételt a munkanapomhoz kell igazítanom, ezért a kérdésidő beosztása számomra különösen hasznos információ. Nem külön konzultációs alkalmat keresek, a közös kérdezési lehetőség is megfelelő lenne. Ha az előadás közben nem lehet közbeszólni, a kérdésemet a végére tartogatom. A nyilvános programban szereplő rendet szeretném követni, és nem kérek előzetes személyes időpontot a bemutató vezetőjétől.\n\nKöszönöm a pontosítást!",
+    "request": "Készíts rövid, udvarias magyar választervezetet az alábbi beérkező levélre. A levél elküldése nem része a feladatnak. A nyilvános program alapján igazold a kérdésidőt, és jelezd, hogy online közvetítést nem tudunk ígérni.",
+    "occurrences": [],
+    "expected": [
+      "A nyilvános program tíz perc kérdésidőt jelez az előadás után.",
+      "A közlemény nem ígér online közvetítést."
+    ],
+    "criteria": [
+      "A nyilvános program alapján igazold a kérdésidőt, és jelezd, hogy online közvetítést nem tudunk ígérni."
+    ],
+    "version": "0.2",
+    "source_sha256": "5995d374536c346edae23897de29b9fe0e7edde4e703b305c5bfe1ec49482542",
+    "request_sha256": "179109e894d41ddb4e0a5ec26d6b6d98fd79889fa461304d5df3369be97f9df9",
+    "categories": []
+  },
+  {
+    "id": "DEV-MAIL-03",
+    "title": "Próbaszámla hiánypótlása",
+    "risk": "narancs",
+    "source": "Tárgy: Teljesítési melléklet a SYN-DEV-SZLA-09 próbaszámlához\n\nKedves Pénzügyi Csoport!\n\nA SYN-DEV-SZLA-09 próbaszámla összege 48 000 tesztforint. Az ügyhöz tartozó csomagot a múlt héten továbbítottuk a helyi ellenőrzésre. A visszaigazolásban azt látjuk, hogy a számla beérkezett, de az elfogadás még függőben van. Szeretnénk tudni, milyen iratra van még szükségetek a feldolgozáshoz.\n\nA feltöltött csomagból hiányzik a teljesítési melléklet. A hiányzó lapot a kapcsolattartótól tudjuk bekérni, ezért kérjük, erősítsétek meg, hogy ezt kell pótolnunk. A számlához új fizetési időpontot egyelőre nem kaptunk.\n\nKöszönjük a visszajelzést!",
+    "request": "Készíts rövid, udvarias magyar választervezetet az alábbi beérkező levélre. A levél elküldése nem része a feladatnak. Kérd a teljesítési melléklet pótlását; addig a számlát nem fogadjuk el, kifizetési napot nem tudunk megadni.",
+    "occurrences": [
+      {
+        "occurrence_id": "DEV-MAIL-03-O001",
+        "source_section": "source",
+        "start": 31,
+        "end": 46,
+        "text": "SYN-DEV-SZLA-09",
+        "category": "SZERZODES",
+        "referent_id": "DEV-MAIL-03-E2",
+        "protected_value_id": "DEV-MAIL-03-V2",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "narancs",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-MAIL-03-O002",
+        "source_section": "source",
+        "start": 91,
+        "end": 106,
+        "text": "SYN-DEV-SZLA-09",
+        "category": "SZERZODES",
+        "referent_id": "DEV-MAIL-03-E2",
+        "protected_value_id": "DEV-MAIL-03-V2",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "narancs",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-MAIL-03-O003",
+        "source_section": "source",
+        "start": 127,
+        "end": 145,
+        "text": "48 000 tesztforint",
+        "category": "PENZUGY",
+        "referent_id": "DEV-MAIL-03-E3",
+        "protected_value_id": "DEV-MAIL-03-V3",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "narancs",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      }
+    ],
+    "expected": [
+      "A SYN-DEV-SZLA-09 próbaszámla összege 48 000 tesztforint.",
+      "A feltöltött csomagból hiányzik a teljesítési melléklet."
+    ],
+    "criteria": [
+      "Kérd a teljesítési melléklet pótlását; addig a számlát nem fogadjuk el, kifizetési napot nem tudunk megadni."
+    ],
+    "version": "0.2",
+    "source_sha256": "b305aeb3aa173d2f1501babeba5e132375ee15b7402d84a15de2da88f0c1c203",
+    "request_sha256": "3fb0af9e6c83072768596decba3367ed4a493bacfa0d8b9afd024c3987e040be",
+    "categories": [
+      "PENZUGY",
+      "SZERZODES"
+    ]
+  },
+  {
+    "id": "DEV-MAIL-04",
+    "title": "Címzett pontosítása",
+    "risk": "sárga",
+    "source": "Tárgy: Csomagszám kérése a beérkező küldeményhez\n\nKedves Kollégák!\n\nA tegnapi egyeztetés óta a küldemény nyomon követési adata még nem érkezett meg a közös munkalapra. Teszt Nóra a műszakvezető, a másik Teszt Nóra a raktáros; két külön munkatársról van szó. A beérkező csomag adatainak pontosítását a raktári feladatok között tartjuk nyilván.\n\nA csomag még nem érkezett meg. A csomagszám birtokában az érkezés állapotát is követni tudnánk. A műszakbeosztást ehhez nem szükséges módosítani, az ügy kizárólag a küldemény azonosításáról szól. A két azonos nevű munkatársat a válaszban célszerű a szerepével megkülönböztetni.\n\nA raktári munkalaphoz a szállítás hivatkozását szeretnénk kapcsolni, mert a megelőző egyeztetésben csak a feladás terve szerepelt. A munkatársak azt jelezték, hogy a következő fogadási lépést a csomag aktuális állapota alapján tudják megszervezni. Ha a csomagszám még nem áll rendelkezésre, ezt is elegendő nyitott tételként visszajelezni. A feladás tervezett napját nem szeretnénk tényleges megérkezési adatként átvezetni a jegyzékbe.\n\nKöszönöm az egyeztetést!",
+    "request": "Készíts rövid, udvarias magyar választervezetet az alábbi beérkező levélre. A levél elküldése nem része a feladatnak. A raktárostól kérj csomagszámot. A műszakvezetőtől ne kérj új beosztást, és a csomagot ne állítsd megérkezettnek.",
+    "occurrences": [
+      {
+        "occurrence_id": "DEV-MAIL-04-O001",
+        "source_section": "source",
+        "start": 168,
+        "end": 178,
+        "text": "Teszt Nóra",
+        "category": "SZEMELY",
+        "referent_id": "DEV-MAIL-04-E1",
+        "protected_value_id": "DEV-MAIL-04-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-MAIL-04-O002",
+        "source_section": "source",
+        "start": 203,
+        "end": 213,
+        "text": "Teszt Nóra",
+        "category": "SZEMELY",
+        "referent_id": "DEV-MAIL-04-E2",
+        "protected_value_id": "DEV-MAIL-04-V2",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      }
+    ],
+    "expected": [
+      "Teszt Nóra a műszakvezető, a másik Teszt Nóra a raktáros; két külön munkatársról van szó.",
+      "A csomag még nem érkezett meg."
+    ],
+    "criteria": [
+      "A raktárostól kérj csomagszámot. A műszakvezetőtől ne kérj új beosztást, és a csomagot ne állítsd megérkezettnek."
+    ],
+    "version": "0.2",
+    "source_sha256": "52a529e77941ecb117a27bd6fcf00b796b5477535bd00b67369a05ca930bf21e",
+    "request_sha256": "2f10231fb4f843a2cf2a5162ab7b91e11b3b06112e35e36e8c6f0cbbca625ed3",
+    "categories": [
+      "SZEMELY"
+    ]
+  },
+  {
+    "id": "DEV-MAIL-05",
+    "title": "Tesztkulcs cseréje",
+    "risk": "piros",
+    "source": "Tárgy: Jelölő eltávolítása a helyi ügyjegyből\n\nKedves Ügykezelők!\n\nA SYN-NOT-A-KEY-DEV11 jelölő véletlenül bekerült egy helyi tesztjegybe; a jelölő nem működő hozzáférési kulcs. Az észleléskor a jegyet még csak a helyi munkapéldányok rendezéséhez használtuk. Szeretném tisztázni, hogy a jelölő a kapcsolódó összefoglalóban vagy a képernyőmásolatban is szerepel-e.\n\nValódi kulcsforgatást nem végeztünk. Az ügyet ezért egyelőre a helyi másolatok rendezéseként kezeljük. Kérlek, a válaszban a teendőkre térjetek ki; a jelölő ismételt bemásolására nincs szükség. A jegy további felhasználását az egyeztetésig félretettük.\n\nKöszönöm!",
+    "request": "Készíts rövid, udvarias magyar választervezetet az alábbi beérkező levélre. A levél elküldése nem része a feladatnak. Kérd a jelölő eltávolítását a jegyből és a helyi másolatok ellenőrzését. A jelölőt ne ismételd meg, valódi kulcsforgatást ne állíts.",
+    "occurrences": [
+      {
+        "occurrence_id": "DEV-MAIL-05-O001",
+        "source_section": "source",
+        "start": 69,
+        "end": 88,
+        "text": "SYN-NOT-A-KEY-DEV11",
+        "category": "TITOK",
+        "referent_id": "DEV-MAIL-05-E2",
+        "protected_value_id": "DEV-MAIL-05-V2",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "piros",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      }
+    ],
+    "expected": [
+      "A SYN-NOT-A-KEY-DEV11 jelölő véletlenül bekerült egy helyi tesztjegybe; a jelölő nem működő hozzáférési kulcs.",
+      "Valódi kulcsforgatást nem végeztünk."
+    ],
+    "criteria": [
+      "Kérd a jelölő eltávolítását a jegyből és a helyi másolatok ellenőrzését. A jelölőt ne ismételd meg, valódi kulcsforgatást ne állíts."
+    ],
+    "version": "0.2",
+    "source_sha256": "4eeffca0898ea7297e1dc496320180c7ca69a1b52015e36f05f46168f53502ae",
+    "request_sha256": "e9130524e462cce49737c8870513c502edf2df10e0bf05ee1dc350d8a2b95f9c",
+    "categories": [
+      "TITOK"
+    ]
+  },
+  {
+    "id": "DEV-MAIL-06",
+    "title": "Feltételes tesztidőpont",
+    "risk": "sárga",
+    "source": "Feladó: Teszt Bence\nTárgy: Csütörtöki próba a közös helyiségben\n\nKedves Szervezők!\n\nA próbát csütörtökre javaslom, de a helyiség csak a belső ellenőrzés befejezése után áll rendelkezésre. Az előkészítő anyagokat addig a saját munkaterületünkön rendezzük össze. A helyiségbe még nem vittünk eszközöket, mert szeretnénk elkerülni, hogy az ellenőrzést akadályozzuk.\n\nA csütörtöki időpont még nincs véglegesen megerősítve. Kérlek, jelezzétek, amint az ellenőrzés állapotáról pontos információ érkezik. Ha a feltétel nem teljesül, új időpontot kell keresnünk. A résztvevőknek ezért egyelőre csak a tervezett napot írtam meg, biztos kezdési időt nem.\n\nA próba résztvevői a közös eszközkészletből dolgoznának. Az eszközök összekészítése addig helyben elvégezhető, de a terem használatának feltételét ettől külön kezeljük. Ha csütörtökig nem érkezik megfelelő visszajelzés, a csoport másik napot keres. Nem szeretnénk a résztvevőkkel biztos kezdést közölni, majd azt utólag visszavonni. A feltételes szervezésről szóló üzenet már kiment, végleges meghívót azonban még nem küldtünk.\n\nÜdvözlettel:\nTeszt Bence",
+    "request": "Készíts rövid, udvarias magyar választervezetet az alábbi beérkező levélre. A levél elküldése nem része a feladatnak. Vedd tudomásul az ellenőrzési feltételt, kérj visszajelzést, és végleges időpontot ne erősíts meg.",
+    "occurrences": [
+      {
+        "occurrence_id": "DEV-MAIL-06-O001",
+        "source_section": "source",
+        "start": 8,
+        "end": 19,
+        "text": "Teszt Bence",
+        "category": "SZEMELY",
+        "referent_id": "DEV-MAIL-06-E1",
+        "protected_value_id": "DEV-MAIL-06-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      },
+      {
+        "occurrence_id": "DEV-MAIL-06-O002",
+        "source_section": "source",
+        "start": 1088,
+        "end": 1099,
+        "text": "Teszt Bence",
+        "category": "SZEMELY",
+        "referent_id": "DEV-MAIL-06-E1",
+        "protected_value_id": "DEV-MAIL-06-V1",
+        "status": "védendő; policy szerint véglegesítendő",
+        "comparison_action": "B: közös típusjelölő; C: kérésen belüli V-kötés",
+        "policy_action": "feltételes kezelés és szint szerinti döntés",
+        "risk_level_proposal": "sárga",
+        "uncertainty": "AI-referencia, hallgatói ellenőrzés előtt"
+      }
+    ],
+    "expected": [
+      "A próbát csütörtökre javaslom, de a helyiség csak a belső ellenőrzés befejezése után áll rendelkezésre.",
+      "A csütörtöki időpont még nincs véglegesen megerősítve."
+    ],
+    "criteria": [
+      "Vedd tudomásul az ellenőrzési feltételt, kérj visszajelzést, és végleges időpontot ne erősíts meg."
+    ],
+    "version": "0.2",
+    "source_sha256": "252b4b8dc3e72099c08ed51ec1e5634df3f8f770e096f942fae8fb6fabcb5208",
+    "request_sha256": "a75a0dcadd5e8d29f08103ce770ed4108c8106f5d4f10cb89f93bcf08ce4614b",
+    "categories": [
+      "SZEMELY"
+    ]
+  }
+]

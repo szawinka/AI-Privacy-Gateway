@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
 from dataclasses import replace

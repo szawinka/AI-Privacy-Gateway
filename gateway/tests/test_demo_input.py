@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 from hashlib import sha256
 import json
 import re

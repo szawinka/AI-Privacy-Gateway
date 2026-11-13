@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Optional, consent-based local installation of the Hungarian recognizer."""
 
 import argparse
@@ -10,6 +11,7 @@ import subprocess
 import sys
 from tempfile import NamedTemporaryFile, mkdtemp
 import venv
+from datetime import datetime, timezone
 
 
 SPACY_VERSION = "3.8.18"
@@ -31,9 +33,32 @@ def interpreter(environment: Path) -> Path:
 
 def installed() -> bool:
     try:
-        return interpreter(NLP_HOME / "venv").is_file() and json.loads(CONFIG.read_text()) == VERSIONS
+        data = json.loads(CONFIG.read_text())
+        return interpreter(NLP_HOME / "venv").is_file() and all(data.get(key) == value for key, value in VERSIONS.items())
     except (OSError, ValueError):
         return False
+
+
+def installation_details() -> dict | None:
+    if not installed():
+        return None
+    data = json.loads(CONFIG.read_text(encoding="utf-8"))
+    recorded = data.get("installed_at")
+    if not recorded:
+        recorded = datetime.fromtimestamp(CONFIG.stat().st_mtime, timezone.utc).isoformat()
+        source = "A korábbi telepítés ideje a konfigurációs fájl időbélyegéből becsült."
+    else:
+        source = "A telepítés ideje helyben rögzített."
+    try:
+        last_load = json.loads((NLP_HOME / "last_loaded.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        last_load = None
+    return {
+        "name": "hu_core_news_md", "model_version": data["hu_core_news_md"],
+        "spacy_version": data["spacy"], "installed_at": recorded, "time_source": source,
+        "load_method": "A modell a projekt külön helyi Python-környezetében, névjavaslatkérésenként külön folyamatban töltődik be.",
+        "last_loaded": last_load.get("loaded_at") if isinstance(last_load, dict) else None,
+    }
 
 
 def active() -> bool:
@@ -67,6 +92,7 @@ def set_active(enabled: bool) -> None:
 
 def _remove_files() -> None:
     CONFIG.unlink(missing_ok=True)
+    (NLP_HOME / "last_loaded.json").unlink(missing_ok=True)
     environment = NLP_HOME / "venv"
     if environment.exists():
         rmtree(environment)
@@ -81,7 +107,7 @@ def remove() -> None:
 @contextmanager
 def _preserve_installation():
     backup = Path(mkdtemp(prefix="reinstall-", dir=NLP_HOME))
-    paths = (CONFIG, NLP_HOME / "venv")
+    paths = (CONFIG, NLP_HOME / "venv", NLP_HOME / "last_loaded.json")
     moved = []
     try:
         for path in paths:
@@ -123,6 +149,7 @@ def install(*, replace: bool = False) -> None:
 
 
 def _install_files() -> None:
+    (NLP_HOME / "last_loaded.json").unlink(missing_ok=True)
     environment = NLP_HOME / "venv"
     venv.EnvBuilder(with_pip=True).create(environment)
     python = interpreter(environment)
@@ -142,7 +169,8 @@ assert "ner" in nlp.pipe_names and "PER" in nlp.get_pipe("ner").labels
 print("A modell betöltődött, a PER kategória elérhető.")
 """], check=True)
     with NamedTemporaryFile(mode="w", encoding="utf-8", dir=NLP_HOME, delete=False) as output:
-        json.dump(VERSIONS, output)
+        json.dump({**VERSIONS, "installed_at": datetime.now(timezone.utc).isoformat(),
+                   "installation_method": "Jóváhagyott helyi telepítés rögzített csomagverziókkal."}, output)
     Path(output.name).replace(CONFIG)
     print("A helyi magyar felismerő telepítése és konfigurálása kész.")
 

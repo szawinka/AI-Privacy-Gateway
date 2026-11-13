@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Process-local session expiry and ownership of temporary token mappings."""
 
 from collections.abc import Callable
@@ -30,6 +31,7 @@ class _Session:
     opened: float
     last_activity: float
     requests: dict[str, TokenizedRequest] = field(default_factory=dict)
+    pinned: set[str] = field(default_factory=set)
 
 
 class SessionStore:
@@ -48,6 +50,8 @@ class SessionStore:
         self._lock = Lock()
 
     def _expired(self, session: _Session, now: float) -> bool:
+        if session.pinned:
+            return False
         return (
             now >= session.last_activity + self.IDLE_SECONDS
             or now >= session.opened + self.MAX_SECONDS
@@ -184,8 +188,41 @@ class SessionStore:
             if mapping is None or binding != mapping.binding:
                 raise SessionUnavailable("Request unavailable")
             del session.requests[binding.request_id]
+            session.pinned.discard(binding.request_id)
             session.last_activity = now
 
     def close_session(self, session_id: str) -> None:
         with self._lock:
-            self._sessions.pop(session_id, None)
+            session = self._sessions.get(session_id)
+            if session is not None and not session.pinned:
+                del self._sessions[session_id]
+
+    def pin_request(self, binding: RequestBinding) -> TokenizedRequest:
+        """Keep a submitted case available after the creator signs out."""
+        with self._lock:
+            session = self._active(binding.session_id, self._clock())
+            mapping = session.requests.get(binding.request_id)
+            if mapping is None or mapping.binding != binding:
+                raise SessionUnavailable("Request unavailable")
+            session.pinned.add(binding.request_id)
+            return mapping
+
+    def restore_pinned(self, mapping: TokenizedRequest) -> None:
+        """Load an application-owned case mapping from the local case database."""
+        binding = mapping.binding
+        with self._lock:
+            now = self._clock()
+            session = self._sessions.get(binding.session_id)
+            if session is None:
+                session = _Session(now, now)
+                self._sessions[binding.session_id] = session
+            if binding.request_id in session.requests:
+                raise SessionUnavailable("Duplicate request binding")
+            session.requests[binding.request_id] = mapping
+            session.pinned.add(binding.request_id)
+
+    def unpin_request(self, binding: RequestBinding) -> None:
+        with self._lock:
+            session = self._sessions.get(binding.session_id)
+            if session is not None:
+                session.pinned.discard(binding.request_id)

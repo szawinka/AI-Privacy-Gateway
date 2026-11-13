@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 import json
 import unittest
 

@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 from dataclasses import replace
 from hashlib import sha256
 import unittest
@@ -46,6 +47,11 @@ class ApprovalTests(unittest.TestCase):
         self.assertEqual(self.payload.digest, sha256(expected).hexdigest())
         self.record()
         self.require(body=expected)
+
+    def test_reviewer_logout_after_decision_keeps_current_approval(self):
+        self.record()
+        self.sessions.close_session(self.reviewer.session_id)
+        self.require()
 
     def test_stale_preview_and_wrong_decision_actor_rejected(self):
         changed = replace(self.payload, version=2, task_template="summary-v2")

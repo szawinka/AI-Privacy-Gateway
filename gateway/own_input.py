@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Canonical own-text input and manually selected masking for local preview."""
 
 from dataclasses import dataclass, field
@@ -18,8 +19,8 @@ class OwnInput:
 
     @classmethod
     def from_fields(cls, source: str, request: str):
-        if any(not text.strip() or len(text) > 4000 or "\x00" in text for text in (source, request)):
-            raise InvalidSelection("Each section requires 1–4000 characters")
+        if any(not text.strip() or len(text) > 8000 or "\x00" in text for text in (source, request)):
+            raise InvalidSelection("Each section requires 1–8000 characters")
         canonical = cls(CanonicalText(Section.SOURCE, source), CanonicalText(Section.REQUEST, request))
         if any(section.text.startswith("\ufeff") for section in (canonical.source, canonical.request)):
             raise InvalidSelection("Repeated leading byte-order mark")
@@ -27,10 +28,10 @@ class OwnInput:
         reject_reserved_markers(canonical.request.text)
         return canonical
 
-    def _parsed(self, raw_selections: str) -> dict[Section, tuple[TokenSelection, ...]]:
+    def _parsed(self, raw_selections: str, *, allow_empty: bool = False) -> dict[Section, tuple[TokenSelection, ...]]:
         try:
             entries = json.loads(raw_selections)
-            if not isinstance(entries, list) or not 1 <= len(entries) <= 40:
+            if not isinstance(entries, list) or not (0 if allow_empty else 1) <= len(entries) <= 40:
                 raise InvalidSelection("Select between 1 and 40 spans")
             spans: dict[Section, list[TokenSelection]] = {section: [] for section in Section}
             texts = {Section.SOURCE: self.source, Section.REQUEST: self.request}
@@ -49,12 +50,12 @@ class OwnInput:
             validated_selections(text, tuple(item.span for item in spans[section]))
         return {section: tuple(items) for section, items in spans.items()}
 
-    def token_selections(self, raw_selections: str):
-        spans = self._parsed(raw_selections)
+    def token_selections(self, raw_selections: str, *, allow_empty: bool = False):
+        spans = self._parsed(raw_selections, allow_empty=allow_empty)
         return spans[Section.SOURCE], spans[Section.REQUEST]
 
-    def selections(self, raw_selections: str):
-        source, request = self.token_selections(raw_selections)
+    def selections(self, raw_selections: str, *, allow_empty: bool = False):
+        source, request = self.token_selections(raw_selections, allow_empty=allow_empty)
         return tuple(item.span for item in source), tuple(item.span for item in request)
 
     def selected_value(self, raw_selections: str) -> tuple[str, str]:
@@ -65,8 +66,8 @@ class OwnInput:
         span = spans[0]
         return text.text[span.start:span.end], span.mask_type.name
 
-    def masked(self, raw_selections: str) -> tuple[str, str]:
-        source_spans, request_spans = self.selections(raw_selections)
+    def masked(self, raw_selections: str, *, allow_empty: bool = False) -> tuple[str, str]:
+        source_spans, request_spans = self.selections(raw_selections, allow_empty=allow_empty)
         treated = mask_request(
             self.source, self.request, source_selections=source_spans, request_selections=request_spans
         )

@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Read two local texts from stdin and return only person offsets."""
 
 import json

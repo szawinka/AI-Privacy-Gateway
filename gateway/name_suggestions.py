@@ -1,8 +1,11 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Run the optional local name worker in its separate environment."""
 
 import json
 from pathlib import Path
 import subprocess
+from datetime import datetime, timezone
+import os
 
 from gateway.install_nlp import NLP_HOME, active, interpreter
 from gateway.own_input import OwnInput
@@ -31,6 +34,11 @@ def suggest_names(draft: OwnInput) -> list[dict] | None:
             for entry in proposals
         ):
             raise ValueError("Invalid suggestions")
+        stamp = NLP_HOME / "last_loaded.json"
+        fd = os.open(stamp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as output:
+            json.dump({"loaded_at": datetime.now(timezone.utc).isoformat(),
+                       "method": "Helyi spaCy-folyamat, névjavaslatkéréskor."}, output)
         return proposals
     except (OSError, subprocess.SubprocessError, ValueError, KeyError, TypeError):
         raise RuntimeError("Local name recognition unavailable") from None

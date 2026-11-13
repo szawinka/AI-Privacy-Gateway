@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Local A-stage demo answers and requester-only response handling."""
 
 from collections.abc import Callable
@@ -73,5 +74,5 @@ class DemoResponse:
             reject_reserved_markers(response)
             return response
         return sessions.restore(
-            requester.session_id, payload.case.prepared.binding, response, allowed=allowed
+            payload.case.prepared.binding.session_id, payload.case.prepared.binding, response, allowed=allowed
         )

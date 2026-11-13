@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """One-time admission to the local adapter with a content-free SQLite audit."""
 
 from collections.abc import Callable

@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 """Separate local operator sign-in and configuration pages."""
 
 from hmac import compare_digest
@@ -78,7 +79,7 @@ _PAGE = TEMPLATES.from_string("""
 {% endif %}
 {% endif %}
 
-</main></html>
+<footer class="credit">Károly Tamás szakdolgozati prototípusa · 2026</footer></main></html>
 """)
 
 
@@ -118,7 +119,7 @@ _RECOGNIZER_PAGE = TEMPLATES.from_string("""
 </details>
 {% endif %}
 </section>
-</main></html>
+<footer class="credit">Károly Tamás szakdolgozati prototípusa · 2026</footer></main></html>
 """)
 
 

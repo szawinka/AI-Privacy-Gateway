@@ -1,3 +1,4 @@
+# Károly Tamás szakdolgozati prototípusa (2026).
 from contextlib import closing
 from pathlib import Path
 import sqlite3
@@ -80,13 +81,14 @@ class DemoFlowTests(unittest.TestCase):
             self.flow.send(self.owner, case_id)
         self.assertFalse(self.audit.exists())
 
-    def test_expiry_and_session_closure_block_send(self):
+    def test_approval_expiry_blocks_send_while_case_remains(self):
         case_id = self.flow.start(DemoTask.DOCUMENT_SUMMARY, self.owner)
         self.decide(self.owner, case_id)
         self.now = 300
         with self.assertRaises(DecisionUnavailable):
             self.flow.send(self.owner, case_id)
         self.sessions.close_session(self.owner.session_id)
-        with self.assertRaises(AccessDenied):
+        self.assertEqual(self.flow.progress(self.owner, case_id).status, "Jóváhagyás lejárt")
+        with self.assertRaises(DecisionUnavailable):
             self.flow.send(self.owner, case_id)
         self.assertFalse(self.audit.exists())

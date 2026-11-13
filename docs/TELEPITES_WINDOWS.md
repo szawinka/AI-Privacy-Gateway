@@ -13,8 +13,8 @@ Ez az útmutató a Windows 10/11 x64 rendszeren végzett bírálói kipróbálá
 
 ## 2. A csomag letöltése és kibontása
 
-1. Nyisd meg a [GitHub kiadások oldalát](https://github.com/szawinka/AI-Privacy-Gateway/releases), és válaszd az **A-0.3.0** kiadást.
-2. Az **Assets** részből töltsd le az `AI-Privacy-Gateway-A-0.3.0-Windows.zip` fájlt. A GitHub automatikusan készített „Source code” ZIP-je is forráskód, de ez az útmutató a külön ellenőrzött Windows ZIP-hez tartozik.
+1. Nyisd meg a [GitHub A-0.3.0 kiadási oldalát](https://github.com/szawinka/AI-Privacy-Gateway/releases/tag/A-0.3.0). A **Windows ZIP letöltése** hivatkozás a kiadás ismertetőjében szerepel; a fájl a repó `dist/A-0.3.0` mappájában van. Közvetlen link: [AI-Privacy-Gateway-A-0.3.0-Windows.zip](https://raw.githubusercontent.com/szawinka/AI-Privacy-Gateway/A-0.3.0/dist/A-0.3.0/AI-Privacy-Gateway-A-0.3.0-Windows.zip).
+2. Ugyanonnan töltsd le a [SHA256SUMS.txt](https://raw.githubusercontent.com/szawinka/AI-Privacy-Gateway/A-0.3.0/dist/A-0.3.0/SHA256SUMS.txt) fájlt is, ha ellenőrzőösszeget szeretnél összevetni. A GitHub automatikusan készített „Source code” ZIP-je is forráskód, de ez az útmutató a külön ellenőrzött Windows ZIP-hez tartozik.
 3. A letöltött ZIP-en válaszd a Windows **Összes kibontása** műveletét. Például a Dokumentumok mappába bontsd ki. **Ne a ZIP-en belül indítsd a programot.** A kicsomagolt mappában a `Start-Windows.cmd`, a `Start-OpenAI-Windows.cmd`, a `README.md` és a `gateway` mappa együtt legyen.
 4. Ha ellenőrizni szeretnéd a letöltést, a kiadáshoz mellékelt `SHA256SUMS.txt` fájlban szerepel a ZIP ellenőrzőösszege. PowerShellben a `Get-FileHash .\AI-Privacy-Gateway-A-0.3.0-Windows.zip -Algorithm SHA256` parancs eredményének egyeznie kell vele. Az ellenőrzéshez a ZIP-et tartalmazó mappában nyiss PowerShellt.
 
